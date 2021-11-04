@@ -2,7 +2,7 @@
 
 This workflow builds on the workflow presented in Golumbeanu (2021) and Burgert (2021) to specify Target Product Profiles for new interventions against malaria. First, a set of simulated scenarios is defined. These are characterized by the delivery modality, tool specifications, and settings in which a concrete health target is analysed. Second, a set of disease scenarios are simulated randomly over the entire parameter space to evaluate the health outcomes. The resulting database of simulations is used to train a Gaussian process emulator (GP), that predicts the health outcome given a set of input parameters. Third, the emulator is employed to perform sensitivity analysis and optimisation of tool properties with respect to health outcomes. This analysis allows to define the optimal product characteristics of new interventions that maximises the chance of achieving a desired health goal.
 
-* Contributors (in chronological order): Melissa Penny, Guojing Yang, Monica Golumbeanu, Lydia Burgert, Mirjam Laager, Narimane Nekkab, Josephine Malinga, Lydia Braunack-Mayer
+**Contributors (in chronological order): Melissa Penny, Guojing Yang, Monica Golumbeanu, Lydia Burgert, Mirjam Laager, Narimane Nekkab, Josephine Malinga, Lydia Braunack-Mayer**
 
 
 ## Folders / Workflow Steps
