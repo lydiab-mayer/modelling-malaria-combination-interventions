@@ -11,7 +11,7 @@
 
 ########################################
 
-gensensanalysisscripts <- function(exp, predicted){
+gensensanalysisscripts <- function(exp, predicted, scale){
   
   user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
   
@@ -44,6 +44,7 @@ gensensanalysisscripts <- function(exp, predicted){
   cat("GP_DIR=$1","\n", sep ="")
   cat("PARAM_RANGES_FILE=$2","\n", sep ="")
   cat("SENS_DEST_DIR=$3","\n", sep ="")
+  cat("SCALE=$4","\n", sep ="")
   
   cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
   cat("gp_files=(${GP_DIR}*.RData)","\n", sep ="")
@@ -56,7 +57,7 @@ gensensanalysisscripts <- function(exp, predicted){
   cat("gp_file=${gp_files[$ID]}","\n", sep ="")
   cat("echo \"Postprocessing for $gp_file\" ","\n", sep ="")
   
-  cat("Rscript ../../../analysisworkflow/4_sensitivity_analysis/sens_GP.R $gp_file $PARAM_RANGES_FILE $SENS_DEST_DIR","\n", sep ="")
+  cat("Rscript ../../../analysisworkflow/4_sensitivity_analysis/sens_GP.R $gp_file $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE","\n", sep ="")
   
   sink()
   
