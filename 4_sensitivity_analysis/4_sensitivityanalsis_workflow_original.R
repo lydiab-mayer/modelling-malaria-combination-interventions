@@ -34,18 +34,6 @@ rm(list = ls())
 # Set seed for replication
 set.seed(42)
 
-# Library
-library(tgp)
-library(hetGP)
-library(ggplot2)
-library(viridis)
-library(sensitivity)
-library(multisensi)
-library(lhs)
-library(dplyr)
-library(reshape2)
-library(gridExtra)
-
 # User 
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
 
@@ -77,6 +65,13 @@ pred_list = c("prev_red_all","prev_red_210","prev_red_int","inc_red_05",
 
 # Or choose 1
 # pred_list = "prev_red_all"
+
+###############
+### SCALING ###
+###############
+
+# Specify whether, when training the GP, input parameters were scaled to c(0, 1) (TRUE) or used on their original scale (FALSE)
+scale = TRUE
 
 ####################
 ### RUN ANALYSIS ###
