@@ -56,6 +56,7 @@ gensensanalysisscripts <- function(exp, predicted, scale){
   cat("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 1)","\n", sep ="")
   cat("gp_file=${gp_files[$ID]}","\n", sep ="")
   cat("echo \"Postprocessing for $gp_file\" ","\n", sep ="")
+  cat("echo \"Scale arg0: $SCALE\" ","\n", sep ="")
   
   cat("Rscript ../../../analysisworkflow/4_sensitivity_analysis/sens_GP.R $gp_file $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE","\n", sep ="")
   
@@ -67,7 +68,7 @@ gensensanalysisscripts <- function(exp, predicted, scale){
   param_ranges_file = paste0(SIM_FOLDER,"param_ranges.RData")
   sens_folder = paste0(SIM_FOLDER,"gp/trained/sensitivity/")
   
-  sys_command = paste("bash GP_sens_workflow.sh", GP_folder, param_ranges_file, sens_folder)
+  sys_command = paste("bash GP_sens_workflow.sh", GP_folder, param_ranges_file, sens_folder, scale)
   
   # Run  command
   system(sys_command)

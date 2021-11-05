@@ -17,7 +17,9 @@ args = commandArgs(TRUE)
 gp_file = args[1]
 ranges_file = args[2]
 results_folder = args[3]
-scale = args[4]
+scale = as.logical(args[4])
+print(paste0("results_folder:",results_folder))
+print(paste0("scale arg:",scale))
 
 exp_name = tools::file_path_sans_ext(basename(gp_file))
 sidx_file = paste(results_folder, exp_name, "_sidx.RData", sep="")
