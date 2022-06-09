@@ -14,14 +14,15 @@ This workflow builds on the workflow presented in Golumbeanu (2021) and Burgert 
     - The output.txt contains a table with four columns and no headers for survey measures.
 
 ### 2_postprocessing
-Performs post-processing of OM simulations by the settings specified in previous sets 
-For each setting, a split file is generated in “postprocessing/split” that specifies the parameters for this setting and based on that, a seeds file (for every simulation) and an agg file (aggregated over all seeds for one parameter set) is generated 
+- Performs generalized post-processing of OM simulations by the settings specified in previous sets 
+- For each setting, a split file is generated in “postprocessing/split” that specifies the parameters for this setting and based on that, a seeds file (for every simulation) and an agg file (aggregated over all seeds for one parameter set) is generated 
+- For each iTPP, postprocessing functions have been further developed and saved in 0_scenarios
 
 ### 3_GP_train
-Trains GPs using for a specified outcome calculated  in 2_postprocessing for each of the seeds files. 
+- Trains GPs using for a specified outcome calculated  in 2_postprocessing for each of the seeds files. 
     - predictors: continuous variables
     - predicted: health outcome 
-To change GP plotting and outputs modify script analysisworkflow/3_GP_train/train_GP.R. Adaptive sampling can be added in this step depending on GP performance.
+- To change GP plotting and outputs modify script analysisworkflow/3_GP_train/train_GP.R. Adaptive sampling can be added in this step depending on GP performance.
 
 ### 4_sensitivity_analysis
 - Performs sensitivity analysis of health outcome using analysis of variance (sobol) for GPs trained in step 3 within the parameter bounds used for simulation (default) 
@@ -35,5 +36,5 @@ To change GP plotting and outputs modify script analysisworkflow/3_GP_train/trai
 - The non-linear search method performs optimisation by using the Augmented Lagrange Multiplier Method with a pre-trained emulator in “3_GP_train”. 
 
 ### 6_GP_grid_optimization
-- Performs a grid search optimisation of chosen continuous input variables to reach a certain health goal while keeping other continuous variables constant
+- Alterative to step 5, performs a grid search optimisation of chosen continuous input variables to reach a certain health goal while keeping other continuous variables constant
 - The grid search method uses a pre-trained emulator in “3_GP_train” for optimisation. 
