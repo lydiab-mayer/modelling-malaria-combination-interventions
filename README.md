@@ -35,6 +35,6 @@ This workflow builds on the workflow presented in Golumbeanu (2021) and Burgert 
 - If the grid size is to wide, change number of grid points within 5_optimization/optimize_parameter.R
 - The non-linear search method performs optimisation by using the Augmented Lagrange Multiplier Method with a pre-trained emulator in “3_GP_train”. 
 
-### 6_GP_grid_optimization
+### 6_grid_optimization
 - Alterative to step 5, performs a grid search optimisation of chosen continuous input variables to reach a certain health goal while keeping other continuous variables constant
 - The grid search method uses a pre-trained emulator in “3_GP_train” for optimisation. 
