@@ -19,6 +19,7 @@
 ###	- OM scenario xml files and simulations in GROUP folder
 ###
 ### adapted 10.11.2021
+### updated 07.07.2022
 ### narimane.nekkab@swisstph.ch
 ###
 ### -------------------------------------------------------------------------
@@ -42,35 +43,43 @@ user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]
 # Working directory
 setwd(paste0("/scicore/home/penny/",user,"/M3TPP"))
 
+# If TRUE, generates error files
+getErr = TRUE
+
 #####################################
 ### RESUBMISSION OM SIMS FUNCTION ###
 #####################################
 
-genOMsimscripts_resubmission <- function(exp, QOS, chunk_size){
+genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
   
+  # Working directory
   user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
   user_dir = paste0("/scicore/home/penny/",user,"/M3TPP")
   
+  # Create folders
   GROUP = "/scicore/home/penny/GROUP/M3TPP/"
   SIM_FOLDER=paste0(GROUP,exp,"/")
-  # ERROR_FOLDER=paste0(GROUP,exp,"/err_new/")
-  ERROR_FOLDER=paste0(GROUP,exp,"/err_resubmit/")
-  
-  dir.create(ERROR_FOLDER)
-  
-  #Generate script to create scenarios and run OM simulations
+  if(getErr){ 
+    ERROR_FOLDER=paste0(GROUP,exp,"/err_resubmit/")
+    dir.create(ERROR_FOLDER)}
+
+  # Generate script to create scenarios and run OM simulations
   sink(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/resubmit_OM.sh"))
   
   cat("#!/bin/bash","\n", sep ="")
-  cat("#SBATCH --job-name=iTPP1_OMresub","\n", sep ="")
+  cat("#SBATCH --job-name=iTPP_OMresub","\n", sep ="")
   cat("#SBATCH --account=penny","\n", sep ="")
-  cat("#SBATCH --error=/dev/null","\n", sep ="")
-  cat("#SBATCH --output=/dev/null","\n", sep ="")
-  # cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out","\n", sep ="")
+  if(getErr){
+    cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out","\n", sep ="")
+  }else{
+    cat("#SBATCH --error=/dev/null","\n", sep ="")
+    cat("#SBATCH --output=/dev/null","\n", sep ="")
+  }
+  
   cat("#SBATCH --mem=2G","\n", sep ="")
   cat("#SBATCH --qos=",QOS,"\n", sep ="")
   cat("#SBATCH --cpus-per-task=1","\n", sep ="")
-  cat("#SBATCH --array=1-$NUM%380","\n", sep ="")
+  cat("#SBATCH --array=1-$NUM%",array_size,"\n", sep ="")
   cat("#SBATCH --exclude=shi121","\n", sep ="")
   cat("#SBATCH --exclude=shi122","\n", sep ="")
   cat("#SBATCH --exclude=shi123","\n", sep ="")
@@ -134,25 +143,20 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size){
   
   sink()
   
-
-  #################################################################### FOR LARGE EXPERIMENTS
+  #############################
+  ### FOR LARGE EXPERIMENTS ###
+  #############################
   
-  
-  ####################### Create new param tables
-  
+  # Create new param tables
   chunk <- chunk_size
-  
-  # param_tab_new <- read.table(paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab_new.txt"), sep= "\t", header = TRUE, as.is = TRUE, stringsAsFactors = FALSE)
   param_tab_new <- read.table(paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab_resubmit.txt"), sep= "\t", header = TRUE, as.is = TRUE, stringsAsFactors = FALSE)
-  
   n <- nrow(param_tab_new)
   r  <- rep(1:ceiling(n/chunk),each=chunk)[1:n]
   split_param_tab <- split(param_tab_new,r)
   num_tab <- max(r)
   
+  # Loop
   for(j in 0:(num_tab-1)){ 
-    
-    # table_file = paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab_new_",j,".txt")
     table_file = paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab_resubmit_",j,".txt")
     
     # Write table to specified destination file
@@ -160,29 +164,22 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size){
                 row.names = FALSE)
   }
   
-  ####################### Create jobs
-  
+  # Create jobs
   # Extract the number of lines in the parameter table
-  # no.commands=as.numeric(system(paste0("wc -l < /scicore/home/penny/GROUP/M3TPP/",exp, "/param_tab_new.txt"), intern = TRUE))
   no.commands=as.numeric(system(paste0("wc -l < /scicore/home/penny/GROUP/M3TPP/",exp, "/param_tab_resubmit.txt"), intern = TRUE))
-  
   no.bats = no.commands %/% chunk_size
-  
   if(no.commands %% chunk_size >0){no.bats = no.bats+1}
-  for(j in 0:(no.bats-1)){ #"split" counting automatically starts at 0, so myst start counting from 0 here
+  for(j in 0:(no.bats-1)){ 
     
     sink(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/resubmission","_",exp,"_",sprintf("%02i",j),".sh"))
-    
     cat("#!/bin/bash\n")
-    cat("#SBATCH --job-name=iTPP1_OMsim_resub",sprintf("%02i",j),"\n", sep ="")
+    cat("#SBATCH --job-name=iTPP_OMsim_resub",sprintf("%02i",j),"\n", sep ="")
     cat("#SBATCH -o /scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/JOB_OUT/resubmission",sprintf("%02i",j),".out","\n",sep ="")
     cat("#SBATCH --qos=",QOS,"\n", sep ="") 
-    # cat("PARAM_TABLE_FILE=",SIM_FOLDER,"param_tab_new_",j,".txt","\n\n", sep ="")
+
     cat("PARAM_TABLE_FILE=",SIM_FOLDER,"param_tab_resubmit_",j,".txt","\n\n", sep ="")
     cat("SCAFFOLD_FILE=",SIM_FOLDER,"scaffold.xml","\n", sep ="")
-    # cat("BASE_FOLDER=",SIM_FOLDER,"base_new_",j,"/","\n", sep ="")
     cat("BASE_FOLDER=",SIM_FOLDER,"base_resubmit_",j,"/","\n", sep ="")
-    # cat("SCENARIOS_FOLDER=",SIM_FOLDER,"scenarios_new_",j,"/","\n", sep ="")
     cat("SCENARIOS_FOLDER=",SIM_FOLDER,"scenarios_resubmit_",j,"/","\n", sep ="")
     cat("OM_FOLDER=",SIM_FOLDER,"om/","\n", sep ="")
     
@@ -213,18 +210,21 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size){
 ##################
 
 # Insert experiment name here
-exp ="..."
+exp = "..."
+
+# Time
+QOS = "30min"
 
 # Optimize file size
-# chunk_size = 100000
 chunk_size = 100000
 
-QOS = "30min"
+# Array (# runs per submission)
+array_size = 300
 
 ###########################################################
 ### GENERATE SCENARIOS AND RUN OPEN MALARIA SIMULATIONS ###
 ###########################################################
 
 # Run
-genOMsimscripts_resubmission(exp, QOS, chunk_size)
+genOMsimscripts_resubmission(exp, QOS, chunk_size, array_size)
 
