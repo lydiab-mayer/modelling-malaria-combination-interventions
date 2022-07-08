@@ -101,8 +101,8 @@ LAIdecay <- data.frame(fundecay=c("weibull"), kdecay=c(1 ), LAIdecay=c("exp"))
 # Convert access to care to 5 day probabilities for use in XML files
 # Sources code from MMC project
 initial_access = 0.1
-access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
-Access <- data.frame(Access="LowAccess", access=access)
+new_access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
+Access <- data.frame(Access="LowAccess", Access=new_access)
 
 ##############################
 ### GENERATE PARAMS TABLES ###
