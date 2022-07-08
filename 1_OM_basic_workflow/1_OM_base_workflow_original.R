@@ -18,7 +18,7 @@
 ###
 ### Adapted script:
 ### Saved 01.09.2021
-### Updated 07.07.2022
+### Updated 08.07.2022
 ### narimane.nekkab@unibas.ch
 ###
 ### R version 3.6.0
@@ -67,39 +67,33 @@ GROUP = "/scicore/home/penny/GROUP/M3TPP/"
 EXPERIMENT_FOLDER = paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/")
 
 # !!! Copy the scaffold.xml file for your experiment into the ./M3TPP/Experiments/"exp"/OM_jobs folder!!!
-# !!! Copy the same scaffold.xml file for your experiment into the .GROUP//M3TPP/Experiments/"exp"/OM_jobs folder!!!
-# !!! Copy a seasonality.csv file for your experiment into the ./M3TPP/Experiments/"exp"/ folder!!!
+# !!! Copy a seasonality file for your experiment into the ./M3TPP/Experiments/"exp"/ folder!!!
 
-######################################
-# Specify the desired parameter values 
-######################################
-
+# Adjust parameter table size(s) if large array
 chunk_size = 90000
 
-QOS = "..."
-
-#############################
-# Categorical variables
+########################
+### PARAMETER VALUES ###
+########################
 
 # Seasonality
-# !!! Depending on which seasonality is used, choose the correct scaffold.xml to upload
-# !!! If using Fourier, make sure number of coefficients correspond (example here I use a 6 coeff model with requires 5 a and 5 b values)
+# !!! Depending on which seasonality is used, choose the correct formatting in the scaffold.xml (monthly vs. Fourier coefficients)
 seasonality_file = "seasonality_monthly.txt" 
-Seasonality = read.table(paste0(EXPERIMENT_FOLDER,exp,"/",seasonality_file), sep="\t", header = TRUE)
+Seasonality <- read.table(paste0(EXPERIMENT_FOLDER,exp,"/",seasonality_file), sep="\t", header = TRUE)
 
 # Biting patterns 
-Biting_pattern <- data.frame(Biting_pattern=c("Mali"),indoor=c(0.6),outdoor=c(0.4))
+Biting_pattern <- data.frame(Biting_pattern=c("Mali"), indoor=c(0.6), outdoor=c(0.4))
 
 # EIR
-EIR= data.frame(EIR=c(10))
+EIR <- data.frame(EIR=c(10))
 
 # Max age intervention 
 # !!! Refer to age group in scaffold.xml 
 # e.g. 0.25 = group 1; 2 = group 2; 5 = group 3; 10 = group 4; 15 = group 5 etc.
-MaxAge = data.frame(MaxAge=c(10),maxGroup=c(4))
+MaxAge <- data.frame(MaxAge=c(10), maxGroup=c(4))
 
 # Intervention decay
-LAIdecay <- data.frame(fundecay=c("weibull"),kdecay=c(1 ),LAIdecay=c("exp" ) )
+LAIdecay <- data.frame(fundecay=c("weibull"), kdecay=c(1 ), LAIdecay=c("exp"))
 
 # Coverage of healthcare system: probability of healthcare seeking of uncomplicated malaria cases (in %) 
 # Access = data.frame(Access=c(0.1))  # ---> default
@@ -107,14 +101,15 @@ LAIdecay <- data.frame(fundecay=c("weibull"),kdecay=c(1 ),LAIdecay=c("exp" ) )
 # Convert access to care to 5 day probabilities for use in XML files
 # Sources code from MMC project
 initial_access = 0.1
-Access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
+access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
+Access <- data.frame(Access="LowAccess", access=access)
 
 ##############################
 ### GENERATE PARAMS TABLES ###
 ##############################
 
 # Combine categorical variables
-param_cat = list(Seasonality=Seasonality,
+param_cat <- list(Seasonality=Seasonality,
                  Biting_pattern=Biting_pattern,
                  EIR=EIR,
                  MaxAge=MaxAge,
@@ -122,9 +117,9 @@ param_cat = list(Seasonality=Seasonality,
                  Access=Access)
 
 # Continuous variables and their ranges
-param_ranges_cont = rbind( Coverage = c(0.4, 1),
-                           Halflife =c(30,150),
-                           Efficacy= c(0.7,1) )
+param_ranges_cont <- rbind(Coverage = c(0.4, 1), # in percent
+                           Halflife = c(30, 150), # in days
+                           Efficacy = c(0.7, 1)) # in percent
 
 # no. of continuous parameters sampled via lhs
 noSamples = 5
@@ -134,6 +129,7 @@ noSeeds=  2
 
 # Generate
 gen_paramtable(exp, param_ranges_cont,param_cat, noSamples, noSeeds,chunk_size)
+# !!! Check all parameter variable names correspond to names in scaffold.xml e.g. @Coverage@ for "Coverage" variable
 
 ###########################################################
 ### GENERATE SCENARIOS AND RUN OPEN MALARIA SIMULATIONS ###
@@ -153,15 +149,15 @@ genOMsimscripts(exp, chunk_size)
 rstudioapi::documentSave()
 
 # Add experiment file, seasonal file, and scaffold to GROUP folder
-
-file.copy(paste0(GROUP,exp,"/1_OM_base_workflow_",exp,".R"), 
-          paste0(EXPERIMENT_FOLDER,exp,"/1_OM_base_workflow_",exp,".R"), overwrite=FALSE)
-
-file.copy(paste0(GROUP,exp,"/scaffold_",exp,".R"), 
-          paste0(EXPERIMENT_FOLDER,exp,"/OM_JOBS/scaffold.R"), overwrite=FALSE)
-
-file.copy(paste0(GROUP,exp,"/",seasonality_file,"_",exp,".R"), 
-          paste0(EXPERIMENT_FOLDER,exp,"/",seasonality_file), overwrite=FALSE)
+file.copy(paste0(EXPERIMENT_FOLDER,exp,"/1_OM_base_workflow_",exp,".R"),
+          paste0(GROUP,exp,"/1_OM_base_workflow_",exp,".R"), 
+          overwrite=T)
+file.copy(paste0(EXPERIMENT_FOLDER,exp,"/OM_JOBS/scaffold.xml"),
+          paste0(GROUP,exp,"/scaffold_",exp,".xml"), 
+          overwrite=T)
+file.copy(paste0(EXPERIMENT_FOLDER,exp,"/",seasonality_file), 
+          paste0(GROUP,exp,"/",seasonality_file,"_",exp,".R"),
+          overwrite=T)
 
 
 
