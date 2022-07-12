@@ -34,6 +34,12 @@ closeAllConnections()
 # Clear environment
 rm(list = ls())
 
+# Set seed for LHS
+set.seed(42)
+
+# Load required libraries
+library(tgp)
+
 # User 
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
 
