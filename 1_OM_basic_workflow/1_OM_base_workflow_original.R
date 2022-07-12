@@ -104,7 +104,7 @@ LAIdecay <- data.frame(fundecay=c("weibull"), kdecay=c(1 ), LAIdecay=c("exp"))
 # Convert access to care to 5 day probabilities for use in XML files
 # Sources code from MMC project
 initial_access = 0.1
-new_access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
+new_access <- round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
 Access <- data.frame(Access_label="LowAccess", Access=new_access)
 
 ##############################
@@ -112,12 +112,12 @@ Access <- data.frame(Access_label="LowAccess", Access=new_access)
 ##############################
 
 # Combine categorical variables
-param_cat <- list(Seasonality=Seasonality,
-                 Biting_pattern=Biting_pattern,
-                 EIR=EIR,
-                 MaxAge=MaxAge,
-                 LAIdecay=LAIdecay,
-                 Access=Access)
+param_cat <- list(Seasonality = Seasonality,
+                 Biting_pattern = Biting_pattern,
+                 EIR = EIR,
+                 MaxAge = MaxAge,
+                 LAIdecay = LAIdecay,
+                 Access = Access)
 
 # Continuous variables and their ranges
 param_ranges_cont <- rbind(Coverage = c(0.4, 1), # in percent
@@ -128,7 +128,7 @@ param_ranges_cont <- rbind(Coverage = c(0.4, 1), # in percent
 noSamples = 5
 
 # no. of OM seeds per sample
-noSeeds=  2
+noSeeds =  2
 
 # Generate
 gen_paramtable(exp, param_ranges_cont,param_cat, noSamples, noSeeds,chunk_size)
