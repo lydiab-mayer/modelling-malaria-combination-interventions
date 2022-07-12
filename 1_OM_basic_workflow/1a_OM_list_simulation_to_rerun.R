@@ -12,7 +12,7 @@
 ### Creates new parameter table for failed simulations
 ###
 ### adapted 10.11.2021
-### updated 07.07.2022
+### updated 12.07.2022
 ### narimane.nekkab@swisstph.ch
 ###
 ### -------------------------------------------------------------------------
@@ -24,8 +24,8 @@
 # !!!!! Change experiment name in lines 27 and 28 !!!!!
 
 ####### Run this code (when inside om folder): 
-# cd /scicore/home/penny/GROUP/M3TPP/.../om/
-# ls >> /scicore/home/penny/GROUP/M3TPP/.../filenames_of_simulations_done.txt
+# cd /scicore/home/penny/GROUP/M3TPP/<your_exp_name>/om/
+# ls >> /scicore/home/penny/GROUP/M3TPP/<your_exp_name>/filenames_of_simulations_done.txt
 
 ##############
 ### HEADER ###
@@ -39,7 +39,7 @@ library(plyr)
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
 
 # Experiment
-exp ="iTPP1_TestCase"
+exp ="<your_exp_name>"
 
 ############
 ### DATA ###
@@ -62,21 +62,6 @@ param_tab_new <- a[-simulated,]
 # Table
 table(param_tab_new$Seasonality, param_tab_new$EIR)
 table(a$Seasonality, a$EIR)
-
-# Percent failures
-sim_table = data.frame(Seasonality=a$Seasonality, EIR=a$EIR, value=1) %>% dplyr::group_by(Seasonality, EIR) %>% dplyr::summarise(total_sims = n())
-fail_table = data.frame(Seasonality=param_tab_new$Seasonality, EIR=param_tab_new$EIR, value=1) %>% dplyr::group_by(Seasonality, EIR) %>% dplyr::summarise(total_fails = n())
-# Merge
-sim_fail_table = merge(sim_table, fail_table, by=c("Seasonality","EIR"), all = T) 
-
-# Remove NAs
-sim_fail_table = sim_fail_table[complete.cases(sim_fail_table),]
-
-# Percent
-sim_fail_table$percent = sim_fail_table$total_fails / sim_fail_table$total_sims
-
-# Total
-sum(sim_fail_table$total_fails)
 
 # Save new parameter table for new simulations
 write.table(param_tab_new,paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab_resubmit.txt"), sep = "\t", quote = FALSE, col.names = TRUE,

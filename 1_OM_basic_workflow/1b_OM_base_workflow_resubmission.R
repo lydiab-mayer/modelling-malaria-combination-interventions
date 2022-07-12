@@ -19,7 +19,7 @@
 ###	- OM scenario xml files and simulations in GROUP folder
 ###
 ### adapted 10.11.2021
-### updated 07.07.2022
+### updated 12.07.2022
 ### narimane.nekkab@swisstph.ch
 ###
 ### -------------------------------------------------------------------------
@@ -30,12 +30,6 @@
 
 # Clear environment
 rm(list = ls())
-
-# Set seed for replication
-set.seed(42)
-
-# Library
-library(tgp)
 
 # User 
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
@@ -210,7 +204,7 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
 ##################
 
 # Insert experiment name here
-exp = "..."
+exp = "<your_exp_name>"
 
 # Time
 QOS = "30min"

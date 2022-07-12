@@ -18,7 +18,7 @@
 ###
 ### Adapted script:
 ### Saved 01.09.2021
-### Updated 08.07.2022
+### Updated 12.07.2022
 ### narimane.nekkab@unibas.ch
 ###
 ### R version 3.6.0
@@ -33,12 +33,6 @@ closeAllConnections()
 
 # Clear environment
 rm(list = ls())
-
-# Set seed for replication
-set.seed(42)
-
-# Library
-library(tgp)
 
 # User 
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
@@ -57,7 +51,7 @@ source(paste0("./analysisworkflow/1_OM_basic_workflow/convert_access.R"))
 ##################
 
 # Insert experiment name here
-exp = "..."
+exp = "<your_exp_name>"
 
 # Create folder in working directory
 create_folders(exp) # <----- run 1st time then comment !!!
@@ -71,6 +65,9 @@ EXPERIMENT_FOLDER = paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/")
 
 # Adjust parameter table size(s) if large array
 chunk_size = 90000
+
+# Queue
+QOS = "30min"
 
 ########################
 ### PARAMETER VALUES ###
@@ -102,7 +99,7 @@ LAIdecay <- data.frame(fundecay=c("weibull"), kdecay=c(1 ), LAIdecay=c("exp"))
 # Sources code from MMC project
 initial_access = 0.1
 new_access = round(pmax(convert_access(initial_access * 100), 0.04), digits = 4)
-Access <- data.frame(Access="LowAccess", Access=new_access)
+Access <- data.frame(Access_label="LowAccess", Access=new_access)
 
 ##############################
 ### GENERATE PARAMS TABLES ###
