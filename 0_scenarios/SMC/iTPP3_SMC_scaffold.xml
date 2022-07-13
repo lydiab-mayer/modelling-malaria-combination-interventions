@@ -8,7 +8,7 @@
 
       <!-- define intervention - based on Burgert et al. 2021 -->
       <component id="AQ-SP" name="smc_bloodstage_definition"> 
-        <treatSimple durationBlood="1t" durationLiver="0"/>
+        <treatSimple durationBlood="1t" durationLiver="1t"/>
       </component>
       
       <component id="AQ-SP-PEV" name="smc_preventative_definition">
