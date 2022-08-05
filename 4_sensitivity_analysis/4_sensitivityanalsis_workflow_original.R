@@ -49,7 +49,7 @@ source(paste0("./analysisworkflow/4_sensitivity_analysis/gensensanalysisscripts.
 ##################
 
 # Insert experiment name here
-exp ="..."
+exp = "..."
 
 
 ##################
@@ -59,12 +59,22 @@ exp ="..."
 # Specify parameter to be predicted
 # Make sure GP exists or will get error
 
-# All current variables for loop --> may be updated in future
-pred_list = c("prev_red_all","prev_red_210","prev_red_int","inc_red_05",
-              "inc_red_int","inc_red_all","inc_red_int_5mo")
+# All variables for loop, must match names of outcome measures with trained GPs
+pred_list = c(...)
 
-# Or choose 1
-# pred_list = "prev_red_all"
+# Specify whether parameter ranges used for the sensitivity analysis should be specified manually, e.g. for clinical translation
+manual = TRUE
+
+# If manual = TRUE, specify ranges to use
+param_ranges_cont = rbind(parameter1 = c(..., ...),
+                          parameter2 = c(..., ...),
+                          parameter3 = c(..., ...))
+ranges_file = paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/param_ranges_manual.RData")
+save(param_ranges_cont, file = ranges_file)
+
+# If manual = TRUE, specify file name to write to
+filename = "sensitivity_manual"
+
 
 ###############
 ### SCALING ###
@@ -81,7 +91,7 @@ scale = TRUE
 for(i in pred_list){
   predicted = i
   print(i)
-  gensensanalysisscripts(exp, predicted)
+  gensensanalysisscripts(exp, predicted, scale, manual, filename)
 }
 
 

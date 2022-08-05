@@ -11,64 +11,90 @@
 
 ########################################
 
-gensensanalysisscripts <- function(exp, predicted, scale){
+gensensanalysisscripts <- function(exp, predicted, scale, manual = FALSE, filename = NULL){
   
   user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
   
-  dir.create(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/JOB_OUT"))
+  # Create directories and copy required files
+  if(!dir.exists(paste0("/scicore/home/penny/", user, "/M3TPP/Experiments/", exp, "/JOB_OUT"))) {
+    dir.create(paste0("/scicore/home/penny/", user, "/M3TPP/Experiments/", exp, "/JOB_OUT"))
+  }
 
   GROUP = "/scicore/home/penny/GROUP/M3TPP/"
   
-  SIM_FOLDER=paste0(GROUP,exp,"/")
-  ERROR_FOLDER=paste0(SIM_FOLDER,"gp/trained/sensitivity/err/")
-  dir.create(ERROR_FOLDER)
+  SIM_FOLDER = paste0(GROUP, exp, "/")
+  if (manual) {
+    ERROR_FOLDER = paste0(SIM_FOLDER, "gp/trained/", filename, "/err/")
+    if(!dir.exists(paste0(SIM_FOLDER, "gp/trained/", filename, "/"))) {
+      dir.create(paste0(SIM_FOLDER, "gp/trained/", filename, "/"))
+      dir.create(paste0(SIM_FOLDER, "gp/trained/", filename, "/err/"))
+    }
+    file.copy(paste0(SIM_FOLDER, "param_ranges_manual.RData"),
+              paste0(SIM_FOLDER, "gp/trained/", filename, "/param_ranges_manual.RData"), overwrite = TRUE)
+  } else {
+    ERROR_FOLDER = paste0(SIM_FOLDER, "gp/trained/sensitivity/err/")
+    if(!dir.exists(paste0(SIM_FOLDER, "gp/trained/sensitivity/"))) {
+      dir.create(paste0(SIM_FOLDER, "gp/trained/sensitivity/"))
+      dir.create(paste0(SIM_FOLDER, "gp/trained/sensitivity/err/"))
+    }
+  }
   
   file.copy(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/4_sensitivity_analysis/GP_sens_workflow.sh"), 
-            paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/GP_sens_workflow.sh"),overwrite=TRUE)
+            paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/GP_sens_workflow.sh"), overwrite = TRUE)
+  
+
 
   
-  sink(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/job_sens_GP.sh"))
+  sink(paste0("/scicore/home/penny/", user, "/M3TPP/Experiments/", exp, "/OM_JOBS/job_sens_GP.sh"))
   
-  cat("#!/bin/bash","\n", sep ="")
-  cat("#SBATCH --job-name=sensanal","\n", sep ="")
-  cat("#SBATCH --account=penny","\n", sep ="")
-  cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out","\n", sep ="")
+  cat("#!/bin/bash", "\n", sep = "")
+  cat("#SBATCH --job-name=sensitivity", "\n", sep = "")
+  cat("#SBATCH --account=penny", "\n", sep = "")
+  cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out", "\n", sep = "")
   # cat("#SBATCH -o /scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/JOB_OUT/4_sensanalysis.out","\n", sep ="")
-  cat("#SBATCH --mem=200G","\n", sep ="")
-  cat("#SBATCH --qos=6hours","\n", sep ="")
-  cat("#SBATCH --cpus-per-task=4","\n", sep ="")
-  cat("###########################################","\n", sep ="")
-  cat("ml purge","\n", sep ="")
-  cat("ml R/3.6.0-foss-2018b","\n", sep ="")
+  cat("#SBATCH --mem=200G", "\n", sep = "")
+  cat("#SBATCH --qos=6hours", "\n", sep = "")
+  cat("#SBATCH --cpus-per-task=4", "\n", sep = "")
+  cat("###########################################","\n", sep = "")
+  cat("ml purge", "\n", sep = "")
+  cat("ml R/3.6.0-foss-2018b", "\n", sep = "")
   
-  cat("GP_DIR=$1","\n", sep ="")
-  cat("PARAM_RANGES_FILE=$2","\n", sep ="")
-  cat("SENS_DEST_DIR=$3","\n", sep ="")
-  cat("SCALE=$4","\n", sep ="")
+  cat("GP_DIR=$1", "\n", sep = "")
+  cat("PARAM_RANGES_FILE=$2", "\n", sep = "")
+  cat("SENS_DEST_DIR=$3", "\n", sep = "")
+  cat("SCALE=$4", "\n", sep = "")
+  cat("MANUAL=$5", "\n", sep = "")
+  cat("FILENAME=$6", "\n", sep = "")
   
-  cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
-  cat("gp_files=(${GP_DIR}*.RData)","\n", sep ="")
-  cat("#i=0","\n", sep ="")
-  cat("#echo ${split_files[$i]}","\n", sep ="")
+  cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)", "\n", sep = "")
+  cat("gp_files=(${GP_DIR}*.RData)", "\n", sep = "")
+  cat("#i=0", "\n", sep = "")
+  cat("#echo ${split_files[$i]}", "\n", sep = "")
   
   
-  cat("# Select scenario file in array","\n", sep ="")
-  cat("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 1)","\n", sep ="")
-  cat("gp_file=${gp_files[$ID]}","\n", sep ="")
-  cat("echo \"Postprocessing for $gp_file\" ","\n", sep ="")
-  cat("echo \"Scale arg0: $SCALE\" ","\n", sep ="")
+  cat("# Select scenario file in array", "\n", sep = "")
+  cat("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 1)", "\n", sep = "")
+  cat("gp_file=${gp_files[$ID]}", "\n", sep = "")
+  cat("echo \"Postprocessing for $gp_file\" ", "\n", sep = "")
+  cat("echo \"Scale arg0: $SCALE\" ", "\n", sep = "")
   
-  cat("Rscript ../../../analysisworkflow/4_sensitivity_analysis/sens_GP.R $gp_file $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE","\n", sep ="")
+  cat("Rscript ../../../analysisworkflow/4_sensitivity_analysis/sens_GP.R $gp_file $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE $MANUAL $FILENAME", "\n", sep = "")
   
   sink()
   
-  setwd(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/"))
+  # Prepare .sh file to submit job to slurm
+  setwd(paste0("/scicore/home/penny/", user, "/M3TPP/Experiments/", exp, "/OM_JOBS/"))
   
-  GP_folder = paste0(SIM_FOLDER,"gp/trained/" ,predicted ,"/")
-  param_ranges_file = paste0(SIM_FOLDER,"param_ranges.RData")
-  sens_folder = paste0(SIM_FOLDER,"gp/trained/sensitivity/")
+  GP_folder = paste0(SIM_FOLDER, "gp/trained/", predicted, "/")
+  if (manual) {
+    param_ranges_file = paste0(SIM_FOLDER, "param_ranges_manual.RData")
+    sens_folder = paste0(SIM_FOLDER, "gp/trained/", filename, "/")
+  } else {
+    param_ranges_file = paste0(SIM_FOLDER, "param_ranges.RData")
+    sens_folder = paste0(SIM_FOLDER, "gp/trained/sensitivity/")
+  }
   
-  sys_command = paste("bash GP_sens_workflow.sh", GP_folder, param_ranges_file, sens_folder, scale)
+  sys_command = paste("bash GP_sens_workflow.sh", GP_folder, param_ranges_file, sens_folder, scale, manual)
   
   # Run  command
   system(sys_command)

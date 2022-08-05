@@ -19,9 +19,9 @@ GP_DIR=$1
 PARAM_RANGES_FILE=$2
 SENS_DEST_DIR=$3
 SCALE=$4
+MANUAL=$5
 
-# create destination directory
-mkdir -p $SENS_DEST_DIR
+ERROR_DIR=$SENS_DEST_DIR"err/"
 
 # Submit GP sensitivity analysis array job
 gp_files=(${GP_DIR}*.RData)
@@ -29,5 +29,5 @@ NUM=${#gp_files[@]}
 
 echo $NUM
 
-sbatch -W --array=1-$NUM job_sens_GP.sh $GP_DIR $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE
+sbatch -W --array=1-$NUM job_sens_GP.sh $GP_DIR $PARAM_RANGES_FILE $SENS_DEST_DIR $SCALE $MANUAL
 
