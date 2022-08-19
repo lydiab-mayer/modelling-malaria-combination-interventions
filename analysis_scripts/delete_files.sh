@@ -3,8 +3,8 @@
 #SBATCH --cpus-per-task=1                  													
 #SBATCH --mem=1G              														
 #SBATCH --account=penny
-#SBATCH --qos=1week          																
-#SBATCH --error=/scicore/home/penny/GROUP/M3TPP/<your_exp_name_here>/errors0.txt
+#SBATCH --qos=1day         																
+#SBATCH --error=/dev/null
 #SBATCH --out=/scicore/home/penny/GROUP/M3TPP/<your_exp_name_here>/out0.txt
 
 #############################
@@ -19,8 +19,8 @@ ls | grep 'err\|base\|scenario' >> del.txt
 
 # delete files and folders
 while read filename; do
-  rsync -a --delete empty/ $filename/
   echo "Deleting $filename"
+  rsync -a --delete empty/ $filename/
   rmdir $filename/
 done < del.txt
 
