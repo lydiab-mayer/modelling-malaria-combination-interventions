@@ -58,7 +58,7 @@ if(!dir.exists(scenario_folder)) {
 
 # Build the file with replacement patterns for parameters
 scenario_sed_file = paste(base_folder, param_table$Scenario_Name, "_",
-                          param_table$SEED, "_patterns.txt", sep="")
+                          param_table$SeedLabel, "_patterns.txt", sep="")
 sed_patterns_vec = paste("s/@", param_names[2:length(param_names)] ,"@/",
                          param_table[1,2:length(param_names)],"/g;", sep="")
 write.table(sed_patterns_vec, file = scenario_sed_file, quote = FALSE,
@@ -66,6 +66,6 @@ write.table(sed_patterns_vec, file = scenario_sed_file, quote = FALSE,
 
 # Build the scenario xml file
 scenario_file = paste(scenario_folder, param_table$Scenario_Name, "_",
-                    param_table$SEED, ".xml", sep="")
+                    param_table$SeedLabel, ".xml", sep="")
 print(paste("Creating", scenario_file, "..."))
 system(paste("sed -f", scenario_sed_file, scaffold_file, ">", scenario_file))

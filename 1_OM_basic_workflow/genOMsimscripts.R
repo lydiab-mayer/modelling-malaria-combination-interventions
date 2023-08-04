@@ -96,11 +96,12 @@ cat("# IMPORTANT: the number of files must equal to the task array length (index
 # Run OpenMalaria simulations
 cat("scenario_file=$(echo $param_line | awk '{print $1}')", "\n", sep ="")
 cat("seed=$(echo $param_line | awk '{print $NF}')", "\n", sep ="")
-cat("# echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
-cat("# echo \"Debug seed: \" $seed", "\n", sep ="")
+cat("seed_label=$(echo $param_line | awk '{print $(NF-1)}')", "\n", sep ="")
+cat("scenario_file=${INPUT_DIR}${scenario_file}\"_\"${seed_label}\".xml\"", "\n", sep = "")
 
-cat("scenario_file=${INPUT_DIR}${scenario_file}\"_\"${seed}\".xml\"", "\n", sep = "")
-cat("# echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
+#cat("echo \"Debug seed: \" $seed", "\n", sep ="")
+#cat("echo \"Debug seed_label: \" $seed_label", "\n", sep ="")
+#cat("echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
 
 cat("# echo \"Running simulation for $scenario_file\"","\n", sep ="")
   

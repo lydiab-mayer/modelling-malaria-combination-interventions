@@ -38,6 +38,7 @@ gen_paramtable <- function(exp, param_ranges_cont, param_cat, noSamples, noSeeds
   # Sample seeds for stochastic OpenMalaria runs randomly based on system time
   set.seed(as.numeric(Sys.time()))
   SEED = sample(1:1000000, noSeeds)
+  seed_df = data.frame("SeedLabel" = 1:noSeeds, "SEED" = SEED)
   
   # Save continous parameter ranges for the experiment and copy to GROUP folder
   save(param_ranges_cont, file = ranges_file)
@@ -53,7 +54,7 @@ gen_paramtable <- function(exp, param_ranges_cont, param_cat, noSamples, noSeeds
   colnames(param_tab)[1] = "Scenario_Name"
    
   # Add seed column at the beginning
-  param_tab = merge(param_tab, as.data.frame(SEED))
+  param_tab = merge(param_tab, as.data.frame(seed_df))
    
   # Write table to specified destination file
   file.remove(table_file)
