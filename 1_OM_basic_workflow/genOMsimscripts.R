@@ -85,13 +85,11 @@ cat("echo \"Replacement patterns, base and scenario xml created.\"", "\n", sep =
 # Load OpenMalaria
 cat("# Load OpenMalaria module and change to folder with resource files","\n", sep ="")
 cat("module purge","\n", sep ="")
-cat("ml OpenMalaria/43.0-iomkl-2019.01","\n", sep ="")
-cat("cd /scicore/home/penny/GROUP/M3TPP/OM_schema43","\n", sep ="")
-
-cat("# ml OpenMalaria/38.0-goolf-1.7.20-Python-2.7.11","\n", sep ="")
-cat("# cd /scicore/home/penny/GROUP/M3TPP/OM_schema38","\n", sep ="")
-cat("# module load OpenMalaria/32-RC3-goolf-1.7.20-Python-2.7.11","\n", sep ="")
-cat("# cd /scicore/home/smith/golmon00/OM_schema32","\n", sep ="")
+cat("ml OpenMalaria/45.0-iomkl-2019.01","\n", sep ="")
+cat("cd /scicore/home/penny/GROUP/M3TPP/OM_schema45","\n", sep ="")
+# UNCOMMENT to load OpenMalaria version 43
+# cat("ml OpenMalaria/43.0-iomkl-2019.01","\n", sep ="")
+# cat("cd /scicore/home/penny/GROUP/M3TPP/OM_schema43","\n", sep ="")
 
 cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
 
