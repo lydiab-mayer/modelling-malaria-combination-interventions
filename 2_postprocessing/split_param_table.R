@@ -20,9 +20,9 @@ destination_folder = args[2]
 param_cat_file = args[3]
 
 # # Sample arguments, retained here for testing
-# param_table <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_tradeoffs_4rounds/param_tab.txt"
-# destination_folder <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_tradeoffs_4rounds/postprocessing/split/"
-# param_cat_file <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_tradeoffs_4rounds/param_ranges_cat.RData"
+# param_table <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/param_tab.txt"
+# destination_folder <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/"
+# param_cat_file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/param_ranges_cat.RData"
 
 # Read the parameter table
 param_tab = read.table(param_table, sep= "\t", header = TRUE, as.is = TRUE, stringsAsFactors = FALSE)

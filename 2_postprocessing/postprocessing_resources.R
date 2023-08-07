@@ -10,9 +10,7 @@
 # Created 14.10.2021
 # lydia.braunack-mayer@swisstph.ch 
 #
-# Adapted from lydia.burgert@unibas.ch
-#
-# R version 3.6.0
+# R version 4.1.0
 #
 # -------------------------------------------------------------------------------------------------------------
 
@@ -33,15 +31,18 @@ options(dplyr.summarise.inform = FALSE)
 # DEFINE HANDY HELPER FUNCTIONS REFERRED TO WITHIN KEY CALCULATIONS
 # -------------------------------------------------------------------------------------------------------------
 
-extract.agegroups <- function(path) {
+extract.agegroups <- function(path, ...) {
   # Function to extract age groups from an OpenMalaria xml
   #
-  # Inputs: path, a file pathway to an OpenMalaria xml
+  # Inputs: 
+  #   path, a file pathway to an OpenMalaria xml
+  #   ..., additional arguments passed to readLines()
+  #
   # Outputs: a vector containing the age groups contained within the xml
   
   #require(stringr)
   
-  file <- readLines(path)
+  file <- readLines(path, ...)
   
   oline <- grep("<ageGroup lowerbound=\"0\">", file)[2]
   cline <- grep("</ageGroup>", file)[2]
@@ -189,17 +190,17 @@ calculate.annual.outcome <- function(om.result, measure, age.group, time.step = 
 }
 
 
-# Sample arguments, retained here for testing
-om.outcome <- calculate.annual.outcome(om.result = read.table("/scicore/home/penny/GROUP/M3TPP/obj6_test/om/obj6_test_1_1_out.txt", header = FALSE),
-                                       measure = 14,
-                                       age.group = 2:8,
-                                       time.step = 5,
-                                       date = "2030-01-01",
-                                       prevalence = FALSE)
-id <- "IncidenceCPPGain"
-year.counterfactual <- 2039
-year.intervention <- 2044
-prevalence <- FALSE
+# # Sample arguments, retained here for testing
+# om.outcome <- calculate.annual.outcome(om.result = read.table("/scicore/home/penny/GROUP/M3TPP/obj6_test/om/obj6_test_1_1_out.txt", header = FALSE),
+#                                        measure = 14,
+#                                        age.group = 2:8,
+#                                        time.step = 5,
+#                                        date = "2030-01-01",
+#                                        prevalence = FALSE)
+# id <- "IncidenceCPPGain"
+# year.counterfactual <- 2039
+# year.intervention <- 2044
+# prevalence <- FALSE
 
 calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.intervention, prevalence = FALSE) {
   
@@ -245,8 +246,8 @@ calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.inte
   om.outcome$gain <- om.outcome$counterfactual - om.outcome$intervention
   
   # Format outputs
-  names(om.outcome)[names(om.outcome) == "gain"] <- id
-  om.outcome <- as.data.frame(om.outcome)
+  om.outcome <- om.outcome[, 3]
+  names(om.outcome) <- id
   
   # Return outputs
   return(om.outcome)
@@ -254,25 +255,23 @@ calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.inte
 }
 
 # # Sample arguments, retained here for testing
-# dir <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_ChemoBlood_TreatLiver_4rounds/"
-# param.file <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_ChemoBlood_TreatLiver_4rounds/postprocessing_original/split/iTPP3ChemoBloodTreatLiver4rounds_seas5mo_Mali_1_10_0.04_May_0.02083134.txt"
+# dir <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/"
+# param.file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/obj6test_seas4mo_Mali_16_5_weibull_0.1227.txt"
 # param.table <- read.table(param.file, sep = "\t", as.is = TRUE, header = TRUE, stringsAsFactors = FALSE)
 # scenario.params <- param.table[1, ]
-# om.file <- paste(dir, "om/", param.table[1, ]$Scenario_Name, "_", param.table[1, ]$SEED, "_out.txt", sep = "")
+# om.file <- paste(dir, "om/", param.table[1, ]$Scenario_Name, "_", param.table[1, ]$SeedLabel, "_out.txt", sep = "")
 # om.result <- read.table(om.file, sep = "\t")
 # date <- "2030-01-01"
-# fmonth <- "May"
-# months <- 3
-# year.counterfactual <- 2034
-# year.intervention <- 2039
+# year.counterfactual <- 2039
+# year.intervention <- 2044
 # min.int <- 0.25
-# 
-# report.results(dir, om.result, date, fmonth, months, year.counterfactual, year.intervention, min.int, scenario.params)
+#
+# report.results(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params)
 
-report.results <- function(dir, om.result, date, fmonth, months, year.counterfactual, year.intervention, min.int, scenario.params) {
+report.results <- function(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params) {
   
   # Define age groups 
-  age.groups <- extract.agegroups(paste0(dir, "scaffold.xml")) # All age groups
+  age.groups <- extract.agegroups(paste0(dir, "scaffold.xml"), warn = FALSE) # All age groups
   age.int <- seq(which(age.groups == min.int), as.numeric(scenario.params["maxGroup"])) # Intervention age group
   # age.int <- seq(which(age.groups == min.int), which(age.groups == 10) - 1) # Children X to 10 years old
   age.210 <- seq(which(age.groups == 2), which(age.groups == 10) - 1) # Children 2 to 10 years old
@@ -280,38 +279,31 @@ report.results <- function(dir, om.result, date, fmonth, months, year.counterfac
   
   # Calculate annual prevalence in children 2 to 10 years old
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 3, age.group = age.210, time.step = 5, date = date, prevalence = TRUE)
-  prev.210 <- c(om.outcome[om.outcome$year == year.counterfactual, "value"])
-  names(prev.210) <- paste0("annual_prev_210_", year.counterfactual)
-  rm(om.outcome)
-  
-  # Calculate monthly prevalence reduction in intervention group
-  om.outcome <- calculate.monthly.outcome(om.result = om.result, measure = 1, age.group = age.int, time.step = 5, date = date, prevalence = TRUE)
-  prev.red.int <- calculate.monthly.reduction(om.outcome = om.outcome, id = "prev_red_int_", fmonth = fmonth, months = months, year.counterfactual = year.counterfactual, year.intervention = year.intervention, prevalence = TRUE)
-  rm(om.outcome)
-  
-  # Calculate monthly prevalence reduction in children 2 to 10 years old
-  om.outcome <- calculate.monthly.outcome(om.result = om.result, measure = 1, age.group = age.210, time.step = 5, date = date, prevalence = TRUE)
-  prev.red.210 <- calculate.monthly.reduction(om.outcome = om.outcome, id = "prev_red_210_", fmonth = fmonth, months = months, year.counterfactual = year.counterfactual, year.intervention = year.intervention, prevalence = TRUE)
+  prev.210 <- om.outcome[om.outcome$year == year.counterfactual, "measure"] / om.outcome[om.outcome$year == year.counterfactual, "npop"]
+  names(prev.210) <- paste0("AnnualPrev210.", year.counterfactual)
   rm(om.outcome)
 
-  # Calculate clinical incidence reduction
-  om.outcome <- calculate.monthly.outcome(om.result = om.result, measure = 14, age.group = age.int, time.step = 5, date = date)
-  inc.red.int <- calculate.monthly.reduction(om.outcome = om.outcome, id = "inc_red_int_", fmonth = fmonth, months = months, year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  # Calculate gain in clinical cases per person
+  om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 14, age.group = age.int, time.step = 5, date = date)
+  inc.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "IncidenceCPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome)
   
-  # Calculate severe disease reduction
-  om.outcome <- calculate.monthly.outcome(om.result = om.result, measure = 78, age.group = age.int, time.step = 5, date = date)
-  sev.red.int <- calculate.monthly.reduction(om.outcome = om.outcome, id = "sev_red_int_", fmonth = fmonth, months = months, year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  # Calculate gain in severe cases per person
+  om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 78, age.group = age.int, time.step = 5, date = date)
+  sev.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "SevereCPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome) 
   
-  # Calculate mortality reduction
-  om.outcome <- calculate.monthly.outcome(om.result = om.result, measure = 74, age.group = age.int, time.step = 5, date = date)
-  mor.red.int <- calculate.monthly.reduction(om.outcome = om.outcome, id = "mor_red_int_", fmonth = fmonth, months = months, year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  # Calculate gain in mortality per person
+  om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 74, age.group = age.int, time.step = 5, date = date)
+  mor.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "DeathsPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome)
   
+  # Format outputs
+  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, inc.gain, sev.gain, mor.gain)
+  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(inc.gain), names(sev.gain), names(mor.gain))
+  rownames(out) <- NULL
+  
   # Return outputs
-  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SEED, prev.210, prev.red.int, prev.red.210, inc.red.int, sev.red.int, mor.red.int)
-  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), colnames(prev.red.int), colnames(prev.red.210), colnames(inc.red.int), colnames(sev.red.int), colnames(mor.red.int))
   return(out)
   
 }
@@ -322,18 +314,15 @@ report.results <- function(dir, om.result, date, fmonth, months, year.counterfac
 # -------------------------------------------------------------------------------------------------------------
 
 # # Sample arguments, retained here for testing
-# dir <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_bloodstage_4rounds/om/"
-# param.file <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_bloodstage_4rounds/postprocessing/split/iTPP3bloodstage4rounds_seas3mo_Mali_8_5_0.24_May_0.020831339.txt"
+# dir <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/om"
+# param.file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/obj6test_seas4mo_Mali_16_5_weibull_0.1227.txt"
 # date <- "2030-01-01"
-# fmonth <- "May"
-# months <- 3
-# year.counterfactual <- 2034
-# year.intervention <- 2039
+# year.counterfactual <- 2039
+# year.intervention <- 2044
 # min.int <- 0.25
 
 postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfactual, year.intervention, min.int) {
   
-  results.folder <- dir
   dir <- paste0(dirname(dir), "/")
   dest.agg <- paste0(dir, "postprocessing/agg_", basename(param.file))
   dest.seed <- paste0(dir, "postprocessing/seeds_", basename(param.file))
@@ -348,7 +337,7 @@ postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfa
     skip <- FALSE
     
     print(i)
-    om.file <- paste(dir, "om/", param.table[i, ]$Scenario_Name, "_", param.table[i, ]$SEED, "_out.txt", sep = "")
+    om.file <- paste(dir, "om/", param.table[i, ]$Scenario_Name, "_", param.table[i, ]$SeedLabel, "_out.txt", sep = "")
     
     tryCatch(if(file.exists(om.file) & file.info(om.file)$size > 0) {
       
@@ -358,8 +347,6 @@ postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfa
       out <- report.results(dir = dir, 
                             om.result = om.result,
                             date = date,
-                            fmonth = fmonth,
-                            months =  months,
                             year.counterfactual =  year.counterfactual,
                             year.intervention = year.intervention,
                             min.int = min.int, 
@@ -377,7 +364,7 @@ postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfa
     summarise_at(c(names(om.outcome)[(which(names(om.outcome) == "seed") + 1):length(names(om.outcome))]), median, na.rm = TRUE)
   
   # Prepare results
-  no.seed.tab <- unique(param.table[, -c(which(colnames(param.table) == "SEED"))])
+  no.seed.tab <- unique(param.table[, -c(which(colnames(param.table) %in% c("SEED", "SeedLabel")))])
   seed.tab <- merge(no.seed.tab, om.outcome, by = c("Scenario_Name"))
   tab <- merge(no.seed.tab, om.agg, by = c("Scenario_Name"))
   

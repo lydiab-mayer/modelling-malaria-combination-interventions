@@ -66,12 +66,6 @@ min_int <- ...
 # Identify the start date of your monitoring period as "YYYY-MM-DD", e.g. "2030-01-01"
 date <- "..."
 
-# Identify the first month of intervention deployment as the month's 3 letter abbreviation, e.g. "Sep"
-fmonth <- "..."
-
-# Identify the number of months the intervention is deployed for as a numeric, e.g. 5
-months <- ...
-
 # Identify the year to treat as the counterfactual as a numeric, i.e. the baseline year before intervention, e.g. 2034
 year_counterfactual <- ...
 
@@ -80,7 +74,7 @@ year_intervention <- ...
 
 # Write parameters to file
 if (!dir.exists(paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/"))) dir.create(paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/"))
-pp_param <- data.frame(min_int, date, fmonth, months, year_counterfactual, year_intervention)
+pp_param <- data.frame(min_int, date, year_counterfactual, year_intervention)
 saveRDS(pp_param, paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/pp_param_values.RDS"))
 
 ##########################
@@ -88,6 +82,6 @@ saveRDS(pp_param, paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessi
 ##########################
 
 # Run
-genOMpostprocscripts(exp, date, fmonth, months, year_counterfactual, year_intervention, min_int)
+genOMpostprocscripts(exp, date, year_counterfactual, year_intervention, min_int)
 
 
