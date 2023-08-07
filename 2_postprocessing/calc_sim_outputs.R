@@ -1,56 +1,75 @@
-##############################
-# calc_sim_outputs.R - script which post-processes the OpenMalaria 
-#                      simulation result and calculates necessary outputs
-#
-# INPUTS:
-#       om_results_folder: path of the folder containing the OpenMalaria simulation output files
-#       split_file: path of the file containing the scenario parameter specifications for each scenario to be processed
-#       dest_dir: path of the folder where output files will be saved
-#
-# OUTPUTS:
-#   In the folder specified at dest_dir, the script will create two files:
-#       - one file with results aggregated across seeds (agg_*.*)
-#       - one file with results for all seeds (seed_*.*)
-#
-# created on 04.01.2019
-# monica.golumbeanu@unibas.ch
-##############################
+################################
+### STEP 2: POST-PROCESSING  ###
+################################
 
-library(dplyr)    
-library(rapportools)
+# -------------------------------------------------------------------------------------------------------------
+#
+# Support script for running post-processing of OM simulations to aggregate data which will be used to train GP
+# 
+# Original script:
+# Created 15.10.2019
+# lydia.braunack-mayer@swisstph.ch 
+#
+# Adapted from monica.golumbeanu@unibas.ch
+#
+# R version 3.6.0
+#
+# -------------------------------------------------------------------------------------------------------------
 
 
+# -------------------------------------------------------------------------------------------------------------
+# SET UP
+# -------------------------------------------------------------------------------------------------------------
+
+# Define user
 user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
-source(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/2_postprocessing/postprocessing_resources.R"))
 
-##### Main part of script: #####
-
+# Source helper functions
+source(paste0("/scicore/home/penny/", user, "/M3TPP/analysisworkflow/2_postprocessing/postprocessing_resources.R"))
 
 # Read in command arguments
-args = commandArgs(TRUE)
-om_results_folder = args[1]
-split_file = args[2]
-dest_dir = args[3]
-follow_up = as.integer(args[4])
-years_before_interv = as.integer(args[5])
+args <- commandArgs(TRUE)
+dir <- args[1]
+split_file <- args[2]
+date <- args[3]
+fmonth <- args[4]
+months <- as.numeric(args[5])
+year_counterfactual <- as.numeric(args[6])
+year_intervention <- as.numeric(args[7])
+min_int <- as.numeric(args[8])
 
-# Create output file names
-split_name = basename(split_file)
-dest_table_agg = paste(dest_dir, "agg_", split_name, sep="")
-dest_table_seeds = paste(dest_dir, "seeds_", split_name, sep="")
+# #Sample command arguments, retained here for testing
+# dir <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_bloodstage_4rounds/om/"
+# split_file <- "/scicore/home/penny/GROUP/M3TPP/iTPP3_bloodstage_4rounds/postprocessing/split/iTPP3bloodstage4rounds_seas3mo_Mali_8_5_0.24_May_0.020831339.txt"
+# date <- "2030-01-01"
+# fmonth <- "May"
+# months <- 3
+# year_counterfactual <- 2034
+# year_intervention <- 2039
+# min_int <- 0.25
 
 cat("Command arguments:")
-print(paste("OM folder:", om_results_folder))
+print(paste("dir:", dir))
 print(paste("Split file:", split_file))
-print(paste("Split name:", split_name))
-print(paste("Dest dir:", dest_dir))
-print(paste("Dest dir agg:", dest_table_agg))
-print(paste("Dest dir seeds:", dest_table_seeds))
-print(paste("Followup:", follow_up))
-print(paste("Years before:", years_before_interv))
+print(paste("Date of first monitoring:", date))
+print(paste("First month of intervention:", fmonth))
+print(paste("Number of months intervention is deployed:", months))
+print(paste("Year for counterfactual outcomes:", year_counterfactual))
+print(paste("Year for intervention outcomes:", year_intervention))
+print(paste("Minimum intervention age:", min_int))
+
+
+# -------------------------------------------------------------------------------------------------------------
+# PERFORM POST-PROCESSING
+# -------------------------------------------------------------------------------------------------------------
 
 # Postprocess the OpenMalaria simulations
 cat("Run OM postprocessing function:")
-postprocess_OM(results_folder = om_results_folder, param_table_file = split_file,
-               final_table_dest = dest_table_agg, final_seed_table_dest = dest_table_seeds,
-               follow_up,years_before_interv)
+postprocess.om(dir = dir, 
+               param.file = split_file,
+               date = date,
+               fmonth = fmonth,
+               months = months,
+               year.counterfactual = year_counterfactual,
+               year.intervention = year_intervention,
+               min.int = min_int)
