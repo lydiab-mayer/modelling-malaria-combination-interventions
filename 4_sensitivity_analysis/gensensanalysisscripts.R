@@ -53,11 +53,11 @@ gensensanalysisscripts <- function(exp, predicted, scale, manual = FALSE, filena
   cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out", "\n", sep = "")
   # cat("#SBATCH -o /scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/JOB_OUT/4_sensanalysis.out","\n", sep ="")
   cat("#SBATCH --mem=200G", "\n", sep = "")
-  cat("#SBATCH --qos=6hours", "\n", sep = "")
+  cat("#SBATCH --qos=30min", "\n", sep = "")
   cat("#SBATCH --cpus-per-task=4", "\n", sep = "")
   cat("###########################################","\n", sep = "")
   cat("ml purge", "\n", sep = "")
-  cat("ml R/3.6.0-foss-2018b", "\n", sep = "")
+  cat("ml R/4.1.0-foss-2018b", "\n", sep = "")
   
   cat("GP_DIR=$1", "\n", sep = "")
   cat("PARAM_RANGES_FILE=$2", "\n", sep = "")
