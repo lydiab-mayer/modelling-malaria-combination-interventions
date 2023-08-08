@@ -37,7 +37,7 @@ genGPtrainscripts <- function(exp, predicted, lower, upper, scale){
   cat("###########################################","\n", sep ="")
   
   cat("ml purge","\n", sep ="")
-  cat("ml R/3.6.0-foss-2018b","\n", sep ="")
+  cat("ml R/4.1.0-foss-2018b","\n", sep ="")
   
   cat("INPUT_DIR=$1","\n", sep ="")
   cat("DEST_DIR=$2","\n", sep ="")
