@@ -265,7 +265,7 @@ calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.inte
 # year.counterfactual <- 2039
 # year.intervention <- 2044
 # min.int <- 0.25
-#
+# 
 # report.results(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params)
 
 report.results <- function(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params) {
@@ -282,25 +282,30 @@ report.results <- function(dir, om.result, date, year.counterfactual, year.inter
   prev.210 <- om.outcome[om.outcome$year == year.counterfactual, "measure"] / om.outcome[om.outcome$year == year.counterfactual, "npop"]
   names(prev.210) <- paste0("AnnualPrev210.", year.counterfactual)
   rm(om.outcome)
+  
+  # Calculate gain in patent cases (prevalence) per person
+  om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 3, age.group = age.int, time.step = 5, date = date, prevalence = TRUE)
+  patent.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "PatentInf", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  rm(om.outcome)
 
-  # Calculate gain in clinical cases per person
+  # Calculate gain in epsiodes of uncomplicated malaria (incidence) per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 14, age.group = age.int, time.step = 5, date = date)
-  inc.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "IncidenceCPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  uncomp.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Uncomp", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome)
   
   # Calculate gain in severe cases per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 78, age.group = age.int, time.step = 5, date = date)
-  sev.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "SevereCPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  sev.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Severe", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome) 
   
   # Calculate gain in mortality per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 74, age.group = age.int, time.step = 5, date = date)
-  mor.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "DeathsPPGain", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
+  mor.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Deaths", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
   rm(om.outcome)
   
   # Format outputs
-  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, inc.gain, sev.gain, mor.gain)
-  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(inc.gain), names(sev.gain), names(mor.gain))
+  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain)
+  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(patent.gain), names(uncomp.gain), names(sev.gain), names(mor.gain))
   rownames(out) <- NULL
   
   # Return outputs
