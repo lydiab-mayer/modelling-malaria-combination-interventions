@@ -66,15 +66,18 @@ min_int <- ...
 # Identify the start date of your monitoring period as "YYYY-MM-DD", e.g. "2030-01-01"
 date <- "..."
 
-# Identify the year to treat as the counterfactual as a numeric, i.e. the baseline year before intervention, e.g. 2034
-year_counterfactual <- ...
+# Identify the year to treat as the baseline as a numeric, i.e. the baseline year before intervention, e.g. 2034
+year_baseline <- ...
 
-# Identify the year to treat as the intervention as a numeric, i.e. the year for which incidence reduction will be calculated, e.g. 2039 
-year_intervention <- ...
+# Identify the year to treat as the counterfactual intervention as a numeric, i.e. the counterfactual year for which incidence reduction will be calculated, e.g. 2039 
+year_interventionA <- ...
+
+# Identify the year to treat as the intervention as a numeric, i.e. the year for which the gain in incidence reduction will be calculated, e.g. 2044 
+year_interventionB <- ...
 
 # Write parameters to file
 if (!dir.exists(paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/"))) dir.create(paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/"))
-pp_param <- data.frame(min_int, date, year_counterfactual, year_intervention)
+pp_param <- data.frame(min_int, date, year_baseline, year_interventionA, year_interventionB)
 saveRDS(pp_param, paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessing/pp_param_values.RDS"))
 
 ##########################
@@ -82,6 +85,6 @@ saveRDS(pp_param, paste0("/scicore/home/penny/GROUP/M3TPP/", exp, "/postprocessi
 ##########################
 
 # Run
-genOMpostprocscripts(exp, date, year_counterfactual, year_intervention, min_int)
+genOMpostprocscripts(exp, date, year_baseline, year_interventionA, year_interventionB, min_int)
 
 

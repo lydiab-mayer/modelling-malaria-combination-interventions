@@ -28,9 +28,10 @@ ml R/4.1.0-foss-2018b
 
 SIM_FOLDER=$1
 DATE=$2
-YEAR_COUNTERFACTUAL=$3
-YEAR_INTERVENTION=$4
-MIN_INT=$5
+YEAR_BASELINE=$3
+YEAR_INTERVENTIONA=$4
+YEAR_INTERVENTIONB=$5
+MIN_INT=$6
 
 PARAM_TAB=$SIM_FOLDER"param_tab.txt"
 PARAM_CAT=$SIM_FOLDER"param_ranges_cat.RData"
@@ -54,4 +55,4 @@ echo $PARAM_CAT
 # Submit postprocessing array job
 split_files=(${SPLIT_FOLDER}*.txt)
 NUM=${#split_files[@]}
-sbatch -W --array=1-$NUM job_postprocessing.sh $SPLIT_FOLDER $OM_FOLDER $DATE $YEAR_COUNTERFACTUAL $YEAR_INTERVENTION $MIN_INT
+sbatch -W --array=1-$NUM job_postprocessing.sh $SPLIT_FOLDER $OM_FOLDER $DATE $YEAR_BASELINE $YEAR_INTERVENTIONA $YEAR_INTERVENTIONB $MIN_INT

@@ -16,7 +16,7 @@
 #
 ########################################
 
-genOMpostprocscripts <- function(exp, date, year_counterfactual, year_intervention, min_int){
+genOMpostprocscripts <- function(exp, date, year_baseline, year_interventionA, year_interventionB, min_int){
   
   user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
   
@@ -47,15 +47,17 @@ genOMpostprocscripts <- function(exp, date, year_counterfactual, year_interventi
   cat("INPUT_DIR=$1", "\n", sep = "")
   cat("OM_RESULTS_DIR=$2", "\n", sep = "")
   cat("DATE=$3", "\n", sep = "")
-  cat("YEAR_COUNTERFACTUAL=$4", "\n", sep = "")
-  cat("YEAR_INTERVENTION=$5", "\n", sep = "")
-  cat("MIN_INT=$6", "\n", sep = "")
+  cat("YEAR_BASELINE=$4", "\n", sep = "")
+  cat("YEAR_INTERVENTIONA=$5", "\n", sep = "")
+  cat("YEAR_INTERVENTIONB=$6", "\n", sep = "")
+  cat("MIN_INT=$7", "\n", sep = "")
     
   cat("echo \"Input: $INPUT_DIR\"", "\n", sep = "")
   cat("echo \"OM dir: $OM_RESULTS_DIR\"", "\n", sep = "")
   cat("echo \"Date: $DATE\"", "\n", sep = "")
-  cat("echo \"Counterfactual year: $YEAR_COUNTERFACTUAL\"", "\n", sep = "")
-  cat("echo \"Intervention year: $YEAR_INTERVENTION\"", "\n", sep = "")
+  cat("echo \"Baseline year: $YEAR_BASELINE\"", "\n", sep = "")
+  cat("echo \"Intervention A year: $YEAR_INTERVENTIONA\"", "\n", sep = "")
+  cat("echo \"Intervention B year: $YEAR_INTERVENTIONB\"", "\n", sep = "")
   cat("echo \"Minimum intervention age: $MIN_INT\"", "\n", sep = "")
     
   # IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
@@ -66,13 +68,13 @@ genOMpostprocscripts <- function(exp, date, year_counterfactual, year_interventi
   cat("split_file=${split_files[$ID]}","\n", sep ="")
   cat("echo \"Postprocessing for $split_file\"","\n", sep ="")
     
-  cat("Rscript ../../../analysisworkflow/2_postprocessing/calc_sim_outputs.R $OM_RESULTS_DIR $split_file $DATE $YEAR_COUNTERFACTUAL $YEAR_INTERVENTION $MIN_INT","\n", sep ="")
+  cat("Rscript ../../../analysisworkflow/2_postprocessing/calc_sim_outputs.R $OM_RESULTS_DIR $split_file $DATE $YEAR_BASELINE $YEAR_INTERVENTIONA $YEAR_INTERVENTIONB $MIN_INT","\n", sep ="")
     
   sink()
     
     setwd(paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/OM_JOBS/"))
     
-    sys_command = paste("sbatch postprocessing_workflow.sh", SIM_FOLDER, date, year_counterfactual, year_intervention, min_int)
+    sys_command = paste("sbatch postprocessing_workflow.sh", SIM_FOLDER, date, year_baseline, year_interventionA, year_interventionB, min_int)
     
     # Run  command
     system(sys_command)

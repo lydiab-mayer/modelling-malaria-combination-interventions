@@ -235,7 +235,7 @@ calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.inte
     # Summarise with sum
     om.outcome <- om.outcome %>%
       group_by(year) %>%
-      summarise(value = sum(measure) / sum(npop))
+      summarise(value = sum(measure) / mean(npop))
     
   }
   
@@ -254,21 +254,88 @@ calculate.annual.gain <- function(om.outcome, id, year.counterfactual, year.inte
   
 }
 
+
+# # Sample arguments, retained here for testing
+# om.outcome <- calculate.annual.outcome(om.result = read.table("/scicore/home/penny/GROUP/M3TPP/obj6_test/om/obj6_test_1_1_out.txt", header = FALSE),
+#                                        measure = 14,
+#                                        age.group = 2:8,
+#                                        time.step = 5,
+#                                        date = "2030-01-01",
+#                                        prevalence = FALSE)
+# id <- "IncidenceRed"
+# year.counterfactual <- 2034
+# year.intervention <- 2044
+# prevalence <- FALSE
+
+calculate.annual.reduction <- function(om.outcome, id, year.counterfactual, year.intervention, prevalence = FALSE) {
+  
+  # Function to calculate reduction in incidence, prevalence or another outcome by year
+  #
+  # Inputs: 
+  # om.outcome: the outputs the function calculate.annual.outcome
+  # id: a string that will be used to name columns of the function outputs, e.g. "IncidenceCPPGain"
+  # year.counterfactual: the baseline year(s), as integer vector
+  # year.intervention: the year(s) in which the intervention occurs , as integer vector
+  # prevalence: TRUE/FALSE indicating if prevalence vs. incidence or another metric should be outputted
+  #
+  # Outputs: data frame containing a single row with the reduction per month
+  
+  #require(tidyr)
+  
+  # Set up data
+  om.outcome <- om.outcome[om.outcome$year %in% c(year.counterfactual, year.intervention), ]
+  om.outcome$year[om.outcome$year %in% year.counterfactual] <- "counterfactual"
+  om.outcome$year[om.outcome$year %in% year.intervention] <- "intervention"
+  
+  # Summarise outcomes
+  if (prevalence) {
+    
+    # Summarise with mean 
+    om.outcome <- om.outcome %>%
+      group_by(year) %>%
+      summarise(value = mean(measure))
+    
+  } else {
+    
+    # Summarise with sum
+    om.outcome <- om.outcome %>%
+      group_by(year) %>%
+      summarise(value = sum(measure))
+    
+  }
+  
+  # Calculate reduction
+  om.outcome <- pivot_wider(om.outcome,
+                            names_from = year,
+                            values_from = value)
+  om.outcome$reduction <- ((om.outcome$counterfactual - om.outcome$intervention) / om.outcome$counterfactual) * 100 
+  
+  # Format outputs
+  om.outcome <- om.outcome[, 3]
+  names(om.outcome) <- id
+  
+  # Return outputs
+  return(om.outcome)
+  
+}
+
+
 # # Sample arguments, retained here for testing
 # dir <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/"
 # param.file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/obj6test_seas4mo_Mali_16_5_weibull_0.1227.txt"
 # param.table <- read.table(param.file, sep = "\t", as.is = TRUE, header = TRUE, stringsAsFactors = FALSE)
-# scenario.params <- param.table[1, ]
-# om.file <- paste(dir, "om/", param.table[1, ]$Scenario_Name, "_", param.table[1, ]$SeedLabel, "_out.txt", sep = "")
+# scenario.params <- param.table[2, ]
+# om.file <- paste(dir, "om/", param.table[2, ]$Scenario_Name, "_", param.table[1, ]$SeedLabel, "_out.txt", sep = "")
 # om.result <- read.table(om.file, sep = "\t")
 # date <- "2030-01-01"
-# year.counterfactual <- 2039
-# year.intervention <- 2044
+# year.baseline <- 2034
+# year.interventionA <- 2039
+# year.interventionB <- 2044
 # min.int <- 0.25
 # 
-# report.results(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params)
+# report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
 
-report.results <- function(dir, om.result, date, year.counterfactual, year.intervention, min.int, scenario.params) {
+report.results <- function(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params) {
   
   # Define age groups 
   age.groups <- extract.agegroups(paste0(dir, "scaffold.xml"), warn = FALSE) # All age groups
@@ -279,29 +346,37 @@ report.results <- function(dir, om.result, date, year.counterfactual, year.inter
   
   # Calculate annual prevalence in children 2 to 10 years old
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 3, age.group = age.210, time.step = 5, date = date, prevalence = TRUE)
-  prev.210 <- om.outcome[om.outcome$year == year.counterfactual, "measure"] / om.outcome[om.outcome$year == year.counterfactual, "npop"]
-  names(prev.210) <- paste0("AnnualPrev210.", year.counterfactual)
+  prev.210 <- om.outcome[om.outcome$year == year.baseline, "measure"] / om.outcome[om.outcome$year == year.baseline, "npop"]
+  names(prev.210) <- paste0("AnnualPrev210.", year.baseline)
   rm(om.outcome)
   
   # Calculate gain in patent cases (prevalence) per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 3, age.group = age.int, time.step = 5, date = date, prevalence = TRUE)
-  patent.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "PatentInf", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
-  rm(om.outcome)
+  patent.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "PatentInf", year.counterfactual = year.baseline, year.intervention = year.interventionA, prevalence = TRUE)
+  patent.intervention <- calculate.annual.reduction(om.outcome = om.outcome, id = "PatentInf", year.counterfactual = year.baseline, year.intervention = year.interventionB, prevalence = TRUE)
+  patent.gain <- patent.intervention - patent.counterfactual
+  rm(om.outcome, patent.counterfactual, patent.intervention)
 
-  # Calculate gain in epsiodes of uncomplicated malaria (incidence) per person
+  # Calculate gain in episodes of uncomplicated malaria (incidence) per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 14, age.group = age.int, time.step = 5, date = date)
-  uncomp.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Uncomp", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
-  rm(om.outcome)
+  uncomp.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "Uncomp", year.counterfactual = year.baseline, year.intervention = year.interventionA)
+  uncomp.intervention <- calculate.annual.reduction(om.outcome = om.outcome, id = "Uncomp", year.counterfactual = year.baseline, year.intervention = year.interventionB)
+  uncomp.gain <- uncomp.intervention - uncomp.counterfactual
+  rm(om.outcome, uncomp.counterfactual, uncomp.intervention)
   
   # Calculate gain in severe cases per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 78, age.group = age.int, time.step = 5, date = date)
-  sev.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Severe", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
-  rm(om.outcome) 
+  sev.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "Severe", year.counterfactual = year.baseline, year.intervention = year.interventionA)
+  sev.intervention <- calculate.annual.reduction(om.outcome = om.outcome, id = "Severe", year.counterfactual = year.baseline, year.intervention = year.interventionB)
+  sev.gain <- sev.intervention - sev.counterfactual
+  rm(om.outcome, sev.intervention, sev.counterfactual) 
   
   # Calculate gain in mortality per person
   om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 74, age.group = age.int, time.step = 5, date = date)
-  mor.gain <- calculate.annual.gain(om.outcome = om.outcome, id = "Deaths", year.counterfactual = year.counterfactual, year.intervention = year.intervention)
-  rm(om.outcome)
+  mor.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "Deaths", year.counterfactual = year.baseline, year.intervention = year.interventionA)
+  mor.intervention <- calculate.annual.reduction(om.outcome = om.outcome, id = "Deaths", year.counterfactual = year.baseline, year.intervention = year.interventionB)
+  mor.gain <- mor.intervention - mor.counterfactual
+  rm(om.outcome, mor.intervention, mor.counterfactual)
   
   # Format outputs
   out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain)
@@ -322,11 +397,12 @@ report.results <- function(dir, om.result, date, year.counterfactual, year.inter
 # dir <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/om"
 # param.file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/obj6test_seas4mo_Mali_16_5_weibull_0.1227.txt"
 # date <- "2030-01-01"
-# year.counterfactual <- 2039
-# year.intervention <- 2044
+# year.baseline <- 2034
+# year.interventionA <- 2039
+# year.interventionB <- 2044
 # min.int <- 0.25
 
-postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfactual, year.intervention, min.int) {
+postprocess.om <- function(dir, param.file, date, fmonth, months, year.baseline, year.interventionA, year.interventionB, min.int) {
   
   dir <- paste0(dirname(dir), "/")
   dest.agg <- paste0(dir, "postprocessing/agg_", basename(param.file))
@@ -352,8 +428,9 @@ postprocess.om <- function(dir, param.file, date, fmonth, months, year.counterfa
       out <- report.results(dir = dir, 
                             om.result = om.result,
                             date = date,
-                            year.counterfactual =  year.counterfactual,
-                            year.intervention = year.intervention,
+                            year.baseline = year.baseline,
+                            year.interventionA =  year.interventionA,
+                            year.interventionB = year.interventionB,
                             min.int = min.int, 
                             scenario.params = param.table[i, ])
 
