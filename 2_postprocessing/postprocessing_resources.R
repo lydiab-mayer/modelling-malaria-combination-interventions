@@ -189,6 +189,86 @@ calculate.annual.outcome <- function(om.result, measure, age.group, time.step = 
   
 }
 
+calculate.agegroup.outcome <- function(om.result, measure, time.step = 5, date, prevalence = FALSE){
+  
+  # Function to calculate incidence, prevalence or another outcome by year for each age group
+  #
+  # Inputs: 
+  # om.result: the outputs of a single OpenMalaria simulation
+  # measure: the outcome measure
+  # time.step: the time step used in OpenMalaria, a numeric in days. Usually 1 or 5
+  # date: the starting date of your OpenMalaria survey period in the format "yyyy-mm-dd"
+  # prevalence: TRUE/FALSE indicating if prevalence vs. incidence or another metric should be outputted
+  #
+  # Outputs: data frame containing the outcome measure divided by the population size of the chosen age group
+  # per month
+  
+  # Load required packages
+  #require(dplyr)
+  #require(tidyr)
+  
+  # Format OpenMalaria output file
+  colnames(om.result) <- c("time", "age_group", "measure", "value")
+  
+  # Error monitoring
+  if (!(measure %in% om.result$measure)) {
+    print(paste0("Data for measure ", measure, " could not be found. Check that this measure has been included in the SurveyOptions section of your xml."))
+  }
+  
+  # Translate from OpenMalaria 5-day time steps to years
+  om.result$date <- time.to.date(om.result$time, time.step = time.step, date = date)
+  om.result$year <- as.numeric(format(om.result$date, "%Y"))
+  
+  # Remove first time step from OpenMalaria outputs
+  om.result <- om.result[om.result$time != 1, ]
+  
+  # Remove measures other than that population size and the specified outcome measure
+  om.result <- om.result[om.result$measure %in% c(0, measure), ]
+  
+  if (prevalence) {
+    
+    # Summarise by averaging over all measures by year
+    om.result <- om.result[, -which(names(om.result) %in% c("time", "date"))] %>%
+      group_by(measure, year) %>%
+      summarise(value = mean(value))
+    
+  } else {
+    
+    # Summarise by summing over outcome measure by year
+    om.pop <- om.result[om.result$measure == 0, -which(names(om.result) %in% c("time", "date"))] %>%
+      group_by(measure, year, age_group) %>%
+      summarise(value = mean(value))
+    
+    om.measure <- om.result[om.result$measure == measure, -which(names(om.result) %in% c("time", "date"))] %>%
+      group_by(measure, year, age_group) %>%
+      summarise(value = sum(value))
+    
+    om.result <- rbind(om.pop, om.measure)
+    
+  }
+  
+  # Transform to long format
+  om.result <- pivot_wider(om.result, 
+                           id_cols = c(year, age_group),
+                           names_from = measure,
+                           values_from = value,
+                           names_prefix = "measure")
+  om.result <- as.data.frame(om.result)
+  
+  # Rename columns
+  names(om.result) <- c("year", "age_group", "npop", "measure")
+  
+  # Calculate outcome measure divided by population size
+  om.result$value <- om.result$measure / om.result$npop
+  
+  # Order resulting data frame
+  om.result <- om.result[order(om.result$year), ]
+  rownames(om.result) <- NULL
+  
+  return(om.result)
+  
+}
+
 
 # # Sample arguments, retained here for testing
 # om.outcome <- calculate.annual.outcome(om.result = read.table("/scicore/home/penny/GROUP/M3TPP/obj6_test/om/obj6_test_1_1_out.txt", header = FALSE),
@@ -321,6 +401,72 @@ calculate.annual.reduction <- function(om.outcome, id, year.counterfactual, year
 
 
 # # Sample arguments, retained here for testing
+# om.outcome <- calculate.agegroup.outcome(om.result = read.table("/scicore/home/penny/GROUP/M3TPP/obj6_test/om/obj6_test_1_1_out.txt", header = FALSE),
+#                                        measure = 14,
+#                                        time.step = 5,
+#                                        date = "2030-01-01",
+#                                        prevalence = FALSE)
+# id <- "IncidenceRed"
+# year.baseline <- 2034
+# year.interventionA <- 2039
+# year.interventionB <- 2044
+# prevalence <- FALSE
+
+calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA, year.interventionB, prevalence = FALSE) {
+  
+  # Function to calculate cumulative cases per person per year
+  #
+  # Inputs: 
+  # om.outcome: the outputs the function calculate.annual.outcome
+  # id: a string that will be used to name columns of the function outputs, e.g. "IncidenceCPPGain"
+  # year.counterfactual: the baseline year, as integer 
+  # year.intervention: the year in which the intervention occurs , as integer
+  # prevalence: TRUE/FALSE indicating if prevalence vs. incidence or another metric should be outputted
+  #
+  # Outputs: data frame containing a single row with the reduction per month
+  
+  #require(tidyr)
+  
+  # Set up data
+  om.outcome <- om.outcome[om.outcome$year %in% c(year.baseline, year.interventionA, year.interventionB), ]
+  om.outcome <- om.outcome[, c("year", "age_group", "value")]
+  
+  # Reshape to wide format
+  om.outcome <- pivot_wider(om.outcome,
+                            names_from = year,
+                            names_prefix = "year",
+                            values_from = value)
+  
+  # Summarise outcomes
+  if (prevalence) {
+    
+  warning("Prevalence measures should not be used to calculate cumulative cases per person! Check your outcome measure")
+    
+  } else {
+    
+    # Summarise with sum
+    om.outcome <- om.outcome %>%
+      mutate(across(starts_with("year"), ~ cumsum(.x)))
+
+  }
+
+  # Reshape to wide format
+  om.outcome <- om.outcome %>%
+    pivot_wider(names_from = age_group, 
+                names_prefix = "age", 
+                values_from = paste0("year", c(year.baseline, year.interventionA, year.interventionB)))
+  
+  
+  # Format outputs
+  names(om.outcome) <- paste0(id, names(om.outcome))
+  
+  # Return outputs
+  return(om.outcome)
+  
+}
+
+
+# # Sample arguments, retained here for testing
 # dir <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/"
 # param.file <- "/scicore/home/penny/GROUP/M3TPP/obj6_test/postprocessing/split/obj6test_seas4mo_Mali_16_5_weibull_0.1227.txt"
 # param.table <- read.table(param.file, sep = "\t", as.is = TRUE, header = TRUE, stringsAsFactors = FALSE)
@@ -333,7 +479,7 @@ calculate.annual.reduction <- function(om.outcome, id, year.counterfactual, year
 # year.interventionB <- 2044
 # min.int <- 0.25
 # 
-# report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
+# # report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
 
 report.results <- function(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params) {
   
@@ -378,9 +524,19 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
   mor.gain <- mor.intervention - mor.counterfactual
   rm(om.outcome, mor.intervention, mor.counterfactual)
   
+  # Calculate cumulative clinical cases per person year
+  om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 14, time.step = 5, date = "2030-01-01")
+  cumCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  rm(om.outcome)
+  
+  # Calculate cumulative severe cases per person year
+  om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 78, time.step = 5, date = "2030-01-01")
+  cumSevCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumSevCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  rm(om.outcome)
+  
   # Format outputs
-  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain)
-  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(patent.gain), names(uncomp.gain), names(sev.gain), names(mor.gain))
+  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain, cumCPPY, cumSevCPPY)
+  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(patent.gain), names(uncomp.gain), names(sev.gain), names(mor.gain), names(cumCPPY), names(cumSevCPPY))
   rownames(out) <- NULL
   
   # Return outputs
