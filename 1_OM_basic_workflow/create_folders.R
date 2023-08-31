@@ -26,12 +26,9 @@ create_folders <- function(exp){
   file.copy(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/4_sensitivity_analysis/4_sensitivityanalsis_workflow_original.R"), 
             paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/4_sensitivityanalysis_workflow_",exp,".R"),overwrite=FALSE)
   
-  file.copy(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/5_optimization/5_optimisation_workflow_original.R"), 
-            paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/5_optimisation_workflow_",exp,".R"),overwrite=FALSE)
-  
-  file.copy(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/6_GP_grid_optimization/6_GP_grid_optimization_original.R"), 
-            paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/6_GP_grid_optimization_workflow_",exp,".R"),overwrite=FALSE)
-  
+  file.copy(paste0("/scicore/home/penny/",user,"/M3TPP/analysisworkflow/6_GP_grid_optimization/6_grid_optimization_workflow_original.R"), 
+            paste0("/scicore/home/penny/",user,"/M3TPP/Experiments/",exp,"/6_grid_optimization_workflow_",exp,".R"),overwrite=FALSE)
+
   # copying plotting files 
   
   dir.create(paste0("./Experiments/",exp,"/analysis_scripts/"))
