@@ -406,13 +406,14 @@ calculate.annual.reduction <- function(om.outcome, id, year.counterfactual, year
 #                                        time.step = 5,
 #                                        date = "2030-01-01",
 #                                        prevalence = FALSE)
-# id <- "IncidenceRed"
+# id <- "IncidenceGain"
 # year.baseline <- 2034
 # year.interventionA <- 2039
 # year.interventionB <- 2044
 # prevalence <- FALSE
+# gain <- TRUE
 
-calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA, year.interventionB, prevalence = FALSE) {
+calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA, year.interventionB, prevalence = FALSE, gain = FALSE) {
   
   # Function to calculate cumulative cases per person per year
   #
@@ -423,7 +424,7 @@ calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA,
   # year.intervention: the year in which the intervention occurs , as integer
   # prevalence: TRUE/FALSE indicating if prevalence vs. incidence or another metric should be outputted
   #
-  # Outputs: data frame containing a single row with the reduction per month
+  # Outputs: data frame containing a single row with the outcome per age group
   
   #require(tidyr)
   
@@ -450,13 +451,33 @@ calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA,
 
   }
 
-  # Reshape to wide format
-  om.outcome <- om.outcome %>%
-    pivot_wider(names_from = age_group, 
-                names_prefix = "age", 
-                values_from = paste0("year", c(year.baseline, year.interventionA, year.interventionB)))
-  
-  
+  if (gain) {
+    
+    # Calculate gain in reduction
+    om.outcome <- om.outcome %>%
+      mutate(!!paste0("reduction", year.interventionA) := (.data[[paste0("year", year.baseline)]] - .data[[paste0("year", year.interventionA)]]) / .data[[paste0("year", year.baseline)]] * 100,
+             !!paste0("reduction", year.interventionB) := (.data[[paste0("year", year.baseline)]] - .data[[paste0("year", year.interventionB)]]) / .data[[paste0("year", year.baseline)]] * 100)
+    om.outcome <- om.outcome %>%
+      mutate(!!paste0("gain", year.interventionB) := .data[[paste0("reduction", year.interventionB)]] - .data[[paste0("reduction", year.interventionA)]])
+    
+    # Reshape to wide format
+    om.outcome <- om.outcome %>%
+      pivot_wider(names_from = age_group, 
+                  names_prefix = "age", 
+                  values_from = c(paste0("year", c(year.baseline, year.interventionA, year.interventionB)),
+                                  paste0("reduction", c(year.interventionA, year.interventionB)),
+                                  paste0("gain", year.interventionB)))
+    
+  } else {
+    
+    # Reshape to wide format
+    om.outcome <- om.outcome %>%
+      pivot_wider(names_from = age_group, 
+                  names_prefix = "age", 
+                  values_from = paste0("year", c(year.baseline, year.interventionA, year.interventionB)))
+    
+  }
+
   # Format outputs
   names(om.outcome) <- paste0(id, names(om.outcome))
   
@@ -479,7 +500,7 @@ calculate.cumCPPY <- function(om.outcome, id, year.baseline, year.interventionA,
 # year.interventionB <- 2044
 # min.int <- 0.25
 # 
-# # report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
+# report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
 
 report.results <- function(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params) {
   
@@ -524,19 +545,29 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
   mor.gain <- mor.intervention - mor.counterfactual
   rm(om.outcome, mor.intervention, mor.counterfactual)
   
-  # Calculate cumulative clinical cases per person year
+  # # Calculate cumulative clinical cases per person year
+  # om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 14, time.step = 5, date = "2030-01-01")
+  # cumCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  # rm(om.outcome)
+  
+  # Calculate gain in cumulative clinical cases reduction per person year
   om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 14, time.step = 5, date = "2030-01-01")
-  cumCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  gainCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB, gain = TRUE)
   rm(om.outcome)
   
-  # Calculate cumulative severe cases per person year
+  # # Calculate cumulative severe cases per person year
+  # om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 78, time.step = 5, date = "2030-01-01")
+  # cumSevCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumSevCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  # rm(om.outcome)
+  
+  # Calculate gain in cumulative severe cases reduction per person year
   om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 78, time.step = 5, date = "2030-01-01")
-  cumSevCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumSevCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB)
+  gainSevCPPY <- calculate.cumCPPY(om.outcome = om.outcome, id = "cumSevCPPY_", year.baseline = year.baseline, year.interventionA = year.interventionA, year.interventionB = year.interventionB, gain = TRUE)
   rm(om.outcome)
   
   # Format outputs
-  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain, cumCPPY, cumSevCPPY)
-  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(patent.gain), names(uncomp.gain), names(sev.gain), names(mor.gain), names(cumCPPY), names(cumSevCPPY))
+  out <- cbind.data.frame(scenario.params$Scenario_Name, scenario.params$SeedLabel, prev.210, patent.gain, uncomp.gain, sev.gain, mor.gain, gainCPPY, gainSevCPPY)
+  colnames(out) <- c("Scenario_Name", "seed", names(prev.210), names(patent.gain), names(uncomp.gain), names(sev.gain), names(mor.gain), names(gainCPPY), names(gainSevCPPY))
   rownames(out) <- NULL
   
   # Return outputs
@@ -590,7 +621,8 @@ postprocess.om <- function(dir, param.file, date, fmonth, months, year.baseline,
                             min.int = min.int, 
                             scenario.params = param.table[i, ])
 
-      om.outcome <- data.frame(rbind(om.outcome, out), stringsAsFactors = FALSE)}, 
+      om.outcome <- data.frame(rbind(om.outcome, out), stringsAsFactors = FALSE)
+      }, 
       error = function(e) {skip <<- TRUE})
     
     if (skip) {next}
