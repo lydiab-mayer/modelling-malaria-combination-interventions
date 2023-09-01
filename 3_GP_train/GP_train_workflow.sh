@@ -1,5 +1,7 @@
 #!/bin/bash
+#SBATCH --mem=2G
 #SBATCH --qos=30min
+#SBATCH --cpus-per-task=1
 #
 ##############################
 # Main script for training a Gaussian process emulator. 
