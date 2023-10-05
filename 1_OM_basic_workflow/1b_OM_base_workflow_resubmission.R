@@ -70,14 +70,10 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
     cat("#SBATCH --output=/dev/null","\n", sep ="")
   }
   
-  cat("#SBATCH --mem=2G","\n", sep ="")
+  cat("#SBATCH --mem=1G","\n", sep ="")
   cat("#SBATCH --qos=",QOS,"\n", sep ="")
   cat("#SBATCH --cpus-per-task=1","\n", sep ="")
   cat("#SBATCH --array=1-$NUM%",array_size,"\n", sep ="")
-  cat("#SBATCH --exclude=shi121","\n", sep ="")
-  cat("#SBATCH --exclude=shi122","\n", sep ="")
-  cat("#SBATCH --exclude=shi123","\n", sep ="")
-  cat("#SBATCH --exclude=shi129","\n", sep ="")
 
   cat("###########################################","\n", sep ="")
   
@@ -88,7 +84,7 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
   cat("DEST_DIR=$5","\n", sep ="")
   
   cat("# Load R", "\n", sep ="")
-  cat("ml R/3.6.0-foss-2018b", "\n", sep = "")
+  cat("ml R/4.1.0-foss-2018b", "\n", sep = "")
   
   cat("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 1)","\n", sep ="")
   cat("# echo \"Debug array ID: \" $ID", "\n", sep ="")
@@ -110,19 +106,20 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
   # Load OpenMalaria
   cat("# Load OpenMalaria module and change to folder with resource files","\n", sep ="")
   cat("module purge","\n", sep ="")
-  cat("ml OpenMalaria/43.0-iomkl-2019.01","\n", sep ="")
-  cat("cd /scicore/home/penny/GROUP/M3TPP/OM_schema43","\n", sep ="")
+  cat("ml OpenMalaria/45.0-iomkl-2019.01","\n", sep ="")
+  cat("cd /scicore/home/penny/GROUP/M3TPP/OM_schema45","\n", sep ="")
   
   cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
   
   # Run OpenMalaria simulations
   cat("scenario_file=$(echo $param_line | awk '{print $1}')", "\n", sep ="")
   cat("seed=$(echo $param_line | awk '{print $NF}')", "\n", sep ="")
-  cat("# echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
-  cat("# echo \"Debug seed: \" $seed", "\n", sep ="")
+  cat("seed_label=$(echo $param_line | awk '{print $(NF-1)}')", "\n", sep ="")
+  cat("scenario_file=${INPUT_DIR}${scenario_file}\"_\"${seed_label}\".xml\"", "\n", sep = "")
   
-  cat("scenario_file=${INPUT_DIR}${scenario_file}\"_\"${seed}\".xml\"", "\n", sep = "")
-  cat("# echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
+  #cat("echo \"Debug seed: \" $seed", "\n", sep ="")
+  #cat("echo \"Debug seed_label: \" $seed_label", "\n", sep ="")
+  #cat("echo \"Debug scenario file: \" $scenario_file", "\n", sep ="")
   
   cat("# echo \"Running simulation for $scenario_file\"","\n", sep ="")
   
@@ -204,7 +201,7 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
 ##################
 
 # Insert experiment name here
-exp = "<your_exp_name>"
+exp = "<your_experiment_name>"
 
 # Time
 QOS = "30min"
@@ -213,7 +210,7 @@ QOS = "30min"
 chunk_size = 100000
 
 # Array (# runs per submission)
-array_size = 300
+array_size = 1000
 
 ###########################################################
 ### GENERATE SCENARIOS AND RUN OPEN MALARIA SIMULATIONS ###

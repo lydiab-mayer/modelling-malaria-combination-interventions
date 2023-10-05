@@ -39,7 +39,7 @@ library(plyr)
 user = strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
 
 # Experiment
-exp ="<your_exp_name>"
+exp ="<your_experiment_name>"
 
 ############
 ### DATA ###
@@ -54,7 +54,7 @@ f_2 = gsub("_out.txt","", f_1)
 a <- read.table(paste0("/scicore/home/penny/GROUP/M3TPP/",exp,"/param_tab.txt"),header = T, stringsAsFactors = F)
 
 # Name of simulated OM files
-simulated <- which(paste0(a$Scenario_Name,"_",a$SEED) %in% f_2)
+simulated <- which(paste0(a$Scenario_Name,"_",a$SeedLabel) %in% f_2)
 
 # Select failed simulations
 param_tab_new <- a[-simulated,]
