@@ -156,10 +156,8 @@ head(out)
 # For each scenario, calculate mean prevalence
 
 out <- out %>%
-  group_by(Seasonality, Biting_pattern, EIR, MaxAge, Decay, Access, Timing) %>%
-  summarise(prev_all_before = mean(prev_all_before),
-            prev_210_beg = mean(prev_210_beg),
-            prev_int_beg = mean(prev_int_beg))
+  group_by(Seasonality, Biting_pattern, EIR, Access) %>%
+  summarise(AnnualPrev210.2034 = mean(AnnualPrev210.2034))
 
 
 ### STORE OUTPUTS ###
