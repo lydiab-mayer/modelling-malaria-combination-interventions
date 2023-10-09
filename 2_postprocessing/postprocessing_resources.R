@@ -480,7 +480,7 @@ calculate.cumCPPY <- function(dir, om.outcome, id, year, prevalence = FALSE) {
 # param.file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/postprocessing/split/Obj6PreEryth_seas4mo_Mali_16_5_weibull_0.04.txt"
 # param.table <- read.table(param.file, sep = "\t", as.is = TRUE, header = TRUE, stringsAsFactors = FALSE)
 # scenario.params <- param.table[2, ]
-# om.file <- paste(dir, "om/", param.table[2, ]$Scenario_Name, "_", param.table[1, ]$SeedLabel, "_out.txt", sep = "")
+# om.file <- paste(dir, "om/", param.table[3, ]$Scenario_Name, "_", param.table[1, ]$SeedLabel, "_out.txt", sep = "")
 # om.result <- read.table(om.file, sep = "\t")
 # date <- "2030-01-01"
 # year.baseline <- 2034
@@ -488,7 +488,7 @@ calculate.cumCPPY <- function(dir, om.outcome, id, year, prevalence = FALSE) {
 # year.interventionB <- 2054
 # min.int <- 0.25
 # 
-# report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
+# # report.results(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params)
 
 report.results <- function(dir, om.result, date, year.baseline, year.interventionA, year.interventionB, min.int, scenario.params) {
   
@@ -536,6 +536,21 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
   CPPY.interventionB <- calculate.cumCPPY(dir = dir, om.outcome = om.outcome, id = "CumCPPY_", year = year.interventionB)
   rm(om.outcome)
   
+  # Identify age group when rebound in clinical cases occurs
+  # index <- rle(as.vector((CPPY.interventionA - CPPY.interventionB) < 0))
+  # if (index$values[length(index$values)]) {
+  #   col <- index$lengths[length(index$lengths)]
+  #   CumCPPYRebound <- names(CPPY.interventionB)[length(CPPY.interventionB) - col + 1]
+  #   CumCPPYRebound <- as.numeric(sub(".*_age", "", CumCPPYRebound))
+  # } else {
+  #   CumCPPYRebound <- NA
+  # }
+  # 
+  index <- (scenario.params["MaxAge"][1, 1] + 2):(length(CPPY.interventionA) - 1)
+  minIndex <- min(abs(CPPY.interventionA[index] - CPPY.interventionB[index]))
+  CumCPPYRebound <- names(CPPY.interventionB[index])[which(abs(CPPY.interventionA[index] - CPPY.interventionB[index]) == minIndex)]
+  CumCPPYRebound <- as.numeric(sub(".*_age", "", CumCPPYRebound))
+  
   # Calculate reductions in cumulative clinical cases per person, per year
 #  CPPY.baseline.red <- ((CPPY.baseline - CPPY.interventionB) / CPPY.baseline) * 100
 #  names(CPPY.baseline.red) <- sub(paste0("_year", year.baseline), "NoIntCounterfactual", names(CPPY.baseline.red))
@@ -548,6 +563,12 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
   sevCPPY.interventionA <- calculate.cumCPPY(dir = dir, om.outcome = om.outcome, id = "SevCumCPPY_", year = year.interventionA)
   sevCPPY.interventionB <- calculate.cumCPPY(dir = dir, om.outcome = om.outcome, id = "SevCumCPPY_", year = year.interventionB)
   rm(om.outcome)
+  
+  # Identify age group when rebound in severe cases occurs
+  index <- (scenario.params["MaxAge"][1, 1] + 2):(length(sevCPPY.interventionA) - 1)
+  minIndex <- min(abs(sevCPPY.interventionA[index] - sevCPPY.interventionB[index]))
+  sevCumCPPYRebound <- names(sevCPPY.interventionB[index])[which(abs(sevCPPY.interventionA[index] - sevCPPY.interventionB[index]) == minIndex)]
+  sevCumCPPYRebound <- as.numeric(sub(".*_age", "", sevCumCPPYRebound))
   
   # Calculate reductions in cumulative severe cases per person, per year
 #  sevCPPY.baseline.red <- ((sevCPPY.baseline - sevCPPY.interventionB) / sevCPPY.baseline) * 100
@@ -576,7 +597,9 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
                           sevCPPY.interventionA,
                           sevCPPY.interventionB,
 #                          sevCPPY.baseline.red,
-                          sevCPPY.counterfactual.red)
+                          sevCPPY.counterfactual.red,
+                          CumCPPYRebound,
+                          sevCumCPPYRebound)
   colnames(out) <- c("Scenario_Name", 
                      "seed",
                      names(prev.210),
@@ -597,7 +620,9 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
                      names(sevCPPY.interventionA),
                      names(sevCPPY.interventionB),
 #                     names(sevCPPY.baseline.red),
-                     names(sevCPPY.counterfactual.red))
+                     names(sevCPPY.counterfactual.red),
+                     "CumCPPYRebound",
+                     "sevCumCPPYRebound")
   rownames(out) <- NULL
   
   # Return outputs
