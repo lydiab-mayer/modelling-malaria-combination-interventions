@@ -45,13 +45,13 @@ lower = args[5]
 upper = args[6]
 scale = args[7]
 
-# Sample script inputs, retained here to facilitate testing
-# split_file <- "/scicore/home/penny/GROUP/M3TPP/E0_LAIExampleLBM/postprocessing/seeds_E0LAIExampleLBM_wideseasonal_Mali_10_4.9167_exp_0.1.txt"
-# results_folder <- "/scicore/home/penny/GROUP/M3TPP/E0_LAIExampleLBM/gp/trained/inc_red_int/"
-# predicted <- "inc_red_int"
-# ranges_file <- "/scicore/home/penny/GROUP/M3TPP/E0_LAIExampleLBM/param_ranges.RData"
-# lower <- "0.001/0.001/0.001"
-# upper <- "10/10/10"
+# # Sample script inputs, retained here to facilitate testing
+# split_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/postprocessing/seeds_Obj6PreEryth_seas6mo_Mali_1_5_weibull_0.04.txt"
+# results_folder <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/gp/trained/CumCPPYRebound/"
+# predicted <- "CumCPPYRebound"
+# ranges_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/param_ranges.RData"
+# lower <- "0.001/0.001/0.001/0.001"
+# upper <- "10/10/10/10"
 # scale <- TRUE
 
 
