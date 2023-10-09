@@ -39,7 +39,7 @@ genOMpostprocscripts <- function(exp, date, year_baseline, year_interventionA, y
   cat("#SBATCH -o ",ERROR_FOLDER,"%A_%a.out","\n", sep ="")
   cat("#SBATCH --mem=1G","\n", sep ="")
   cat("#SBATCH --qos=1day","\n", sep ="")
-  cat("#SBATCH --cpus-per-task=2","\n", sep ="")
+  cat("#SBATCH --cpus-per-task=1","\n", sep ="")
   cat("###########################################","\n", sep ="")
   cat("ml purge","\n", sep ="")
   cat("ml R/4.1.0-foss-2018b","\n", sep ="")
