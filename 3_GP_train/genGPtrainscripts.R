@@ -30,7 +30,7 @@ genGPtrainscripts <- function(exp, predicted, lower, upper, scale){
   cat("#SBATCH --job-name=GPtrain","\n", sep ="")
   cat("#SBATCH --account=penny","\n", sep ="")
   cat("#SBATCH -o ", ERROR_FOLDER, "%A_%a.out","\n", sep ="")
-  cat("#SBATCH --mem=1G","\n", sep ="")
+  cat("#SBATCH --mem=500MB","\n", sep ="")
   cat("#SBATCH --qos=30min","\n", sep ="")
   cat("#SBATCH --cpus-per-task=1","\n", sep ="")
   
