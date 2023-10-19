@@ -69,6 +69,9 @@ upper = "10/10/10" # default values chosen suitable for most problems, can be ad
 # Specify whether input parameters should be scaled to c(0, 1) (TRUE) or used on their original scale (FALSE)
 scale = TRUE
 
+# Specify whether to fit emulator to aggregated postprocessing data or postprocessing data by seed
+agg = FALSE
+
 
 ######################
 ### TRAIN EMULATOR ###
@@ -78,7 +81,7 @@ scale = TRUE
 for(i in pred_list){
   predicted = i
   print(i)
-  genGPtrainscripts(exp, predicted, lower, upper, scale)
+  genGPtrainscripts(exp, predicted, lower, upper, scale, agg)
 }
 
 

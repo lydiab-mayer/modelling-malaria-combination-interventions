@@ -15,7 +15,7 @@
 #
 ########################################
 
-genGPtrainscripts <- function(exp, predicted, lower, upper, scale){
+genGPtrainscripts <- function(exp, predicted, lower, upper, scale, agg){
   
   # Set up
   user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
@@ -48,12 +48,18 @@ genGPtrainscripts <- function(exp, predicted, lower, upper, scale){
   cat("SCALE=$7","\n", sep ="")
   
   cat("# IMPORTANT: the number of files must equal to the task array length (index starts at 0)","\n", sep ="")
-  cat("setting_postprocessing_results=(${INPUT_DIR}seeds_*.txt)","\n", sep ="")
+  
+  if (agg) {
+    cat("setting_postprocessing_results=(${INPUT_DIR}agg_*.txt)","\n", sep ="")
+  } else {
+    cat("setting_postprocessing_results=(${INPUT_DIR}seeds_*.txt)","\n", sep ="")
+  }
   
   cat("# Select scenario file in array","\n", sep ="")
   cat("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 1)","\n", sep ="")
   cat("setting_postprocessing_result=${setting_postprocessing_results[$ID]}","\n", sep ="")
   cat("echo \"Postprocessing $PREDICTED for $setting_postprocessing_result\"","\n", sep ="")
+  if (agg) cat("echo \"Emulator fitted to aggregated postprocessing data\"","\n", sep ="")
   
   cat("Rscript ../../../analysisworkflow/3_GP_train/train_GP.R $setting_postprocessing_result $DEST_DIR $PREDICTED $RANGES_FILE $LOWER $UPPER $SCALE","\n", sep ="")
   
