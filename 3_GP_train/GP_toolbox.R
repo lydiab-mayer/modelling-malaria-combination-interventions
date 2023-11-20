@@ -232,7 +232,7 @@ calc_sobol_idx <- function(GP_model, param_spec, num_points){
     T_eff<- SA$T$original
     
     # Return function outputs
-    return(list(S_eff = S_eff, T_eff = T_eff))
+    return(list(S_eff = S_eff, T_eff = T_eff, SA = SA))
     
 }
 
