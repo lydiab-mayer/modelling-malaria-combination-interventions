@@ -46,12 +46,12 @@ upper = args[6]
 scale = args[7]
 
 # # Sample script inputs, retained here to facilitate testing
-# split_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/postprocessing/seeds_Obj6PreEryth_seas6mo_Mali_1_5_weibull_0.04.txt"
-# results_folder <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/gp/trained/CumCPPYRebound/"
-# predicted <- "CumCPPYRebound"
-# ranges_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_PreEryth/param_ranges.RData"
-# lower <- "0.001/0.001/0.001/0.001"
-# upper <- "10/10/10/10"
+# split_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_v2_PreEryth/postprocessing/seeds_Obj6v2PreEryth_seas6mo_Mali_1_5_weibull_0.2412_1.txt"
+# results_folder <- "/scicore/home/penny/GROUP/M3TPP/Obj6_v2_PreEryth/gp/trained/Reduction_CumCPPY_age5/"
+# predicted <- "Reduction_CumCPPY_age5"
+# ranges_file <- "/scicore/home/penny/GROUP/M3TPP/Obj6_v2_PreEryth/param_ranges.RData"
+# lower <- "0.001/0.001/0.001"
+# upper <- "10/10/10"
 # scale <- TRUE
 
 
@@ -76,6 +76,9 @@ if((predicted %in%colnames(input_data)) == FALSE) {
 
 # Define data used to train the gaussian process regression
 input_data <- input_data[, c(input_parameters, predicted)]
+
+# Remove any missing values - these are due to simulations that have failed to sustain transmission
+input_data <- input_data[!is.na(input_data[, predicted]), ]
 
 # Set up scaling
 if (scale == TRUE) {
