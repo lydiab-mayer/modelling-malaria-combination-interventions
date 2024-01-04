@@ -70,10 +70,10 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
     cat("#SBATCH --output=/dev/null","\n", sep ="")
   }
   
-  cat("#SBATCH --mem=1G","\n", sep ="")
+  cat("#SBATCH --mem=100MB","\n", sep ="")
   cat("#SBATCH --qos=",QOS,"\n", sep ="")
   cat("#SBATCH --cpus-per-task=1","\n", sep ="")
-  cat("#SBATCH --array=1-$NUM%",array_size,"\n", sep ="")
+  cat("#SBATCH --array=1-$NUM%4000",array_size,"\n", sep ="")
 
   cat("###########################################","\n", sep ="")
   
@@ -178,7 +178,7 @@ genOMsimscripts_resubmission <- function(exp, QOS, chunk_size, array_size){
     
     cat(" echo \"Creating $NUM-1 scenarios and running OM simulations... \" ","\n", sep ="")
     
-    cat("sbatch -W --array=1-$NUM ./resubmit_OM.sh $PARAM_TABLE_FILE $SCAFFOLD_FILE $BASE_FOLDER $SCENARIOS_FOLDER $OM_FOLDER","\n\n", sep ="")
+    cat("sbatch -W --array=1-$NUM%4000 ./resubmit_OM.sh $PARAM_TABLE_FILE $SCAFFOLD_FILE $BASE_FOLDER $SCENARIOS_FOLDER $OM_FOLDER","\n\n", sep ="")
     
     # Close the sink!
     sink()
@@ -210,7 +210,7 @@ QOS = "30min"
 chunk_size = 100000
 
 # Array (# runs per submission)
-array_size = 1000
+array_size = 100000
 
 ###########################################################
 ### GENERATE SCENARIOS AND RUN OPEN MALARIA SIMULATIONS ###
