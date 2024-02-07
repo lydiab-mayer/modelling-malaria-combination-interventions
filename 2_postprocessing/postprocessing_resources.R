@@ -501,46 +501,28 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
   prev.210 <- om.outcome[om.outcome$year == year.baseline, "measure"] / om.outcome[om.outcome$year == year.baseline, "npop"]
   names(prev.210) <- paste0("AnnualPrev210.", year.baseline)
   rm(om.outcome)
-  
-  # # Calculate reduction in patent cases (prevalence)
-  # om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 3, age.group = age.int, time.step = 5, date = date, prevalence = TRUE)
-  # patent.baseline <- calculate.annual.reduction(om.outcome = om.outcome, id = "PatentInfNoIntCounterfactual", year.counterfactual = year.baseline, year.intervention = year.interventionB, prevalence = TRUE)
-  # patent.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "PatentInfSMCCounterfactual", year.counterfactual = year.interventionA, year.intervention = year.interventionB, prevalence = TRUE)
-  # rm(om.outcome)
-
-  # # Calculate reduction in episodes of uncomplicated malaria (incidence)
-  # om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 14, age.group = age.int, time.step = 5, date = date)
-  # uncomp.baseline <- calculate.annual.reduction(om.outcome = om.outcome, id = "UncompNoIntCounterfactual", year.counterfactual = year.baseline, year.intervention = year.interventionB)
-  # uncomp.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "UncompSMCCounterfactual", year.counterfactual = year.interventionA, year.intervention = year.interventionB)
-  # rm(om.outcome)
-  
-  # # Calculate reduction in severe cases
-  # om.outcome <- calculate.annual.outcome(om.result = om.result, measure = 78, age.group = age.int, time.step = 5, date = date)
-  # sev.baseline <- calculate.annual.reduction(om.outcome = om.outcome, id = "SevereNoIntCounterfactual", year.counterfactual = year.baseline, year.intervention = year.interventionB)
-  # sev.counterfactual <- calculate.annual.reduction(om.outcome = om.outcome, id = "SevereSMCCounterfactual", year.counterfactual = year.interventionA, year.intervention = year.interventionB)
-  # rm(om.outcome) 
 
   # Calculate cumulative clinical cases per person
   om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 14, time.step = 5, date = "2030-01-01")
   CPPY.baseline <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Baseline_CumCPPY_", start.year = year.baseline, max.age = 10)
-  CPPY.interventionA <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "SMC_CumCPPY_", start.year = year.interventionA, max.age = 10)
-  CPPY.interventionB <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Layer_CumCPPY_", start.year = year.interventionB, max.age = 10)
+  CPPY.interventionA <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Counterfactual_CumCPPY_", start.year = year.interventionA, max.age = 10)
+  CPPY.interventionB <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Intervention_CumCPPY_", start.year = year.interventionB, max.age = 10)
   rm(om.outcome)
-
+  
   # Calculate reductions in cumulative clinical cases per person, per year
-  CPPY.counterfactual.red <- ((CPPY.interventionA - CPPY.interventionB) / CPPY.interventionA) * 100
-  names(CPPY.counterfactual.red) <- sub("SMC", "Reduction", names(CPPY.counterfactual.red))
+  CPPY.red <- ((CPPY.interventionA - CPPY.interventionB) / CPPY.interventionA) * 100
+  names(CPPY.red) <- sub("Counterfactual", "Reduction", names(CPPY.red))
 
   # Calculate cumulative severe cases per person, per year
   om.outcome <- calculate.agegroup.outcome(om.result = om.result, measure = 78, time.step = 5, date = "2030-01-01")
   sevCPPY.baseline <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Baseline_SevCumCPPY_", start.year = year.baseline, max.age = 10)
-  sevCPPY.interventionA <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "SMC_SevCumCPPY_", start.year = year.interventionA, max.age = 10)
-  sevCPPY.interventionB <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Layer_SevCumCPPY_", start.year = year.interventionB, max.age = 10)
+  sevCPPY.interventionA <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Counterfactual_SevCumCPPY_", start.year = year.interventionA, max.age = 10)
+  sevCPPY.interventionB <- calculate.cumCPPY.direct(dir = dir, om.outcome = om.outcome, id = "Intervention_SevCumCPPY_", start.year = year.interventionB, max.age = 10)
   rm(om.outcome)
 
   # Calculate reductions in cumulative severe cases per person, per year
-  sevCPPY.counterfactual.red <- ((sevCPPY.interventionA - sevCPPY.interventionB) / sevCPPY.interventionA) * 100
-  names(sevCPPY.counterfactual.red) <- sub("SMC", "Reduction", names(sevCPPY.counterfactual.red))
+  sevCPPY.red <- ((sevCPPY.interventionA - sevCPPY.interventionB) / sevCPPY.interventionA) * 100
+  names(sevCPPY.red) <- sub("Counterfactual", "Reduction", names(sevCPPY.red))
 
   # Format outputs
   out <- cbind.data.frame(scenario.params$Scenario_Name, 
@@ -549,22 +531,22 @@ report.results <- function(dir, om.result, date, year.baseline, year.interventio
                           CPPY.baseline,
                           CPPY.interventionA,
                           CPPY.interventionB,
-                          CPPY.counterfactual.red,
+                          CPPY.red,
                           sevCPPY.baseline,
                           sevCPPY.interventionA,
                           sevCPPY.interventionB,
-                          sevCPPY.counterfactual.red)
+                          sevCPPY.red)
   colnames(out) <- c("Scenario_Name", 
                      "seed",
                      names(prev.210),
                      names(CPPY.baseline),
                      names(CPPY.interventionA),
                      names(CPPY.interventionB),
-                     names(CPPY.counterfactual.red),
+                     names(CPPY.red),
                      names(sevCPPY.baseline),
                      names(sevCPPY.interventionA),
                      names(sevCPPY.interventionB),
-                     names(sevCPPY.counterfactual.red))
+                     names(sevCPPY.red))
   rownames(out) <- NULL
   
   # Return outputs
