@@ -157,7 +157,7 @@ head(out)
 
 out <- out %>%
   group_by(Seasonality, Biting_pattern, EIR, Access) %>%
-  summarise(AnnualPrev210.2034 = mean(AnnualPrev210.2034))
+  summarise(AnnualPrev210.2030 = mean(AnnualPrev210.2030))
 
 
 ### STORE OUTPUTS ###
