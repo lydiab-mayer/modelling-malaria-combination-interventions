@@ -1,40 +1,50 @@
-# Summary
+**Combining seasonal malaria chemoprevention with novel therapeutics for malaria prevention: a mathematical modelling study**
 
-This workflow builds on the workflow presented in Golumbeanu (2021) and Burgert (2021) to specify Target Product Profiles for new interventions against malaria. First, a set of simulated scenarios is defined. These are characterized by the delivery modality, tool specifications, and settings in which a concrete health target is analysed. Second, a set of disease scenarios are simulated randomly over the entire parameter space to evaluate the health outcomes. The resulting database of simulations is used to train a Gaussian process emulator (GP), that predicts the health outcome given a set of input parameters. Third, the emulator is employed to perform sensitivity analysis and optimisation of tool properties with respect to health outcomes. This analysis allows to define the optimal product characteristics of new interventions that maximises the chance of achieving a desired health goal.
+Lydia Braunack-Mayer1,2, Josephine Malinga3, Narimane Nekkab1,2, Sherrie L Kelly1,2, Jörg J Möhrle1,2,4, Melissa A Penny1,2,3,5,*
+1 Swiss Tropical and Public Health Institute, Allschwil, Switzerland
+2 University of Basel, Basel, Switzerland
+3 Telethon Kids Institute, Nedlands, WA, Australia
+4 Medicines for Malaria Venture, Geneva, Switzerland
+5 Centre for Child Health Research, The University of Western Australia, Perth, WA, Australia
+* Correspondence to:
+Prof Melissa A Penny
+melissa.penny@telethonkids.org.au
+
+In this study, we combined an individual-based malaria transmission model (https://github.com/SwissTPH/openmalaria/wiki) with explicit models of intervention dynamics for a range of hypothetical malaria prevention therapeutics. We used these models to estimate the impact of combining new therapeutics with seasonal malaria chemoprevention in children under five years old.
+
+
+# Folders / Workflow Steps
+
+## analysisworkflow
+
+This workflow builds on the workflow presented in Golumbeanu (2021), Burgert (2021) and Braunack-Mayer (2024) to specify Target Product Profiles for new interventions against malaria. First, a set of simulated scenarios is defined. These are characterized by the delivery modality, tool specifications, and settings in which a malaria intervention is analysed. Second, health outcomes for these scenarios are simulated randomly over a large intervention parameter space. The resulting database of simulations is used to train a Gaussian process emulator, that predicts the health outcome given a set of input parameters. Third, the emulator is employed to perform sensitivity analysis of tool properties with respect to health outcomes. This analysis supports the identification of ideal product characteristics for new interventions to maximise their chance of achieving a desired health goal.
 
 **Contributors (in chronological order): Melissa Penny, Guojing Yang, Monica Golumbeanu, Lydia Burgert, Mirjam Laager, Narimane Nekkab, Josephine Malinga, Lydia Braunack-Mayer**
 
-
-## Folders / Workflow Steps
+### 0_scenarios
+Contains exemplar XML files for each of the intervention models used to simulate data with OpenMalaria (https://github.com/SwissTPH/openmalaria/wiki).
 
 ### 1_OM_basic_workflow
-- Generates paramater table and XML scenarios from base scaffold.xml
-- Launches OM simulations with 2 outputs
-    - The ctsout.txt contains a table with outputs for "continuous time" the measures specified in the the scenario test.xml. There is one line for each (5-day) time step.
-    - The output.txt contains a table with four columns and no headers for survey measures.
+Generates paramater table and XML scenarios from base scaffold.xml. Launches OM simulations with an output.txt file containing a table with four columns and no headers for survey measures. There is one line for each (5-day) time step.
 
 ### 2_postprocessing
-- Performs generalized post-processing of OM simulations by the settings specified in previous sets 
-- For each setting, a split file is generated in “postprocessing/split” that specifies the parameters for this setting and based on that, a seeds file (for every simulation) and an agg file (aggregated over all seeds for one parameter set) is generated 
-- For each iTPP, postprocessing functions have been further developed and saved in 0_scenarios
+Performs generalised post-processing of OM simulations by the settings specified in previous sets. For each setting, a split file is generated in “postprocessing/split” that specifies the parameters for this setting and based on that, a seeds file (for every simulation) and an agg file (aggregated over all seeds for one parameter set) is generated.
 
 ### 3_GP_train
-- Trains GPs using for a specified outcome calculated  in 2_postprocessing for each of the seeds files. 
-    - predictors: continuous variables
-    - predicted: health outcome 
-- To change GP plotting and outputs modify script analysisworkflow/3_GP_train/train_GP.R. Adaptive sampling can be added in this step depending on GP performance.
+Trains GPs using for a specified outcome calculated  in 2_postprocessing for each of the seeds files. 
+- Predictors: therapeutic efficacy, half-life, and decay shape
+- Predicted: health outcome 
 
 ### 4_sensitivity_analysis
-- Performs sensitivity analysis of health outcome using analysis of variance (sobol) for GPs trained in step 3 within the parameter bounds used for simulation (default) 
-    - predictors: continuous variables
-    - predicted: health outcome 
-- To chance number of bootstrap samples, change function calc_sobol_idx in analysisworkflow/3_GP_train/GPtoolbox.R
+Performs sensitivity analysis of health outcome using analysis of variance (sobol) for GPs trained in step 3 within the parameter bounds used for simulation (default).
+- Predictors: therapeutic efficacy, half-life, and decay shape
+- Predicted: health outcome 
+Settings for the sobol analysis are defined in the function calc_sobol_idx in analysisworkflow/3_GP_train/GPtoolbox.R.
 
-### 5_optimization
-- Performs non-linear optimisation of chosen continuous input variables to reach a certain health goal while keeping other continuous variables constant
-- If the grid size is to wide, change number of grid points within 5_optimization/optimize_parameter.R
-- The non-linear search method performs optimisation by using the Augmented Lagrange Multiplier Method with a pre-trained emulator in “3_GP_train”. 
+## data_and_visualisation
 
-### 6_grid_optimization
-- Alterative to step 5, performs a grid search optimisation of chosen continuous input variables to reach a certain health goal while keeping other continuous variables constant
-- The grid search method uses a pre-trained emulator in “3_GP_train” for optimisation. 
+This folder contains the data generated during this study, along with the R scripts used to visualise data. There is a folder for each figure in the manuscript and supplement, containing:
+- The .rds data file(s) corresponding to the figure,
+- The Rscript(s) used to generate the figure, and
+- A jpg version of the figure.
+To reproduce a given figure, download the corresponding folder and update the file paths referenced in the corresponding Rscript.
