@@ -6,9 +6,8 @@ Lydia Braunack-Mayer1,2, Josephine Malinga3, Narimane Nekkab1,2, Sherrie L Kelly
 3 Telethon Kids Institute, Nedlands, WA, Australia
 4 Medicines for Malaria Venture, Geneva, Switzerland
 5 Centre for Child Health Research, The University of Western Australia, Perth, WA, Australia
-* Correspondence to:
-Prof Melissa A Penny
-melissa.penny@telethonkids.org.au
+
+Correspondence to: Prof Melissa A Penny, melissa.penny@telethonkids.org.au
 
 In this study, we combined an individual-based malaria transmission model (https://github.com/SwissTPH/openmalaria/wiki) with explicit models of intervention dynamics for a range of hypothetical malaria prevention therapeutics. We used these models to estimate the impact of combining new therapeutics with seasonal malaria chemoprevention in children under five years old.
 
