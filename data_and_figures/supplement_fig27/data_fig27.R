@@ -1,124 +1,211 @@
 # INTRO ----
 #
-# Visualises sensitivity results
+# Visualises parameter relationships
+#
 # Written by Lydia Braunack-Mayer
 
-
-# SET UP ----
+# SETUP ----
 
 rm(list = ls())
 
 # !!! Insert your experiment name here as a string, e.g. "MyExperiment" !!!
-exp <- c("Obj6_Scen3_PreEryth_BloodStage")
+experiments <- c("Obj6_v2_PreEryth", "Obj6_Scen2_PreEryth", "Obj6_Scen3_PreEryth", "Obj6_Scen4_PreEryth")
 
 # !!! Insert your predicted parameters here. Note that this must match with one column name in post-processing files !!!
-pred_list <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
+predictors <- c("Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
 
-# Load packages
-library(dplyr)
+# Load required packages
 library(tidyr)
+library(dplyr)
 
-user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
+# Define directories
 GROUP_dr <- "/scicore/home/penny/GROUP/M3TPP/"
 
-if (!dir.exists(paste0("./Outputs"))) dir.create(paste0("./Outputs"))
-
-load(paste0(GROUP_dr, exp, "/param_ranges_manual.RData"))
-param_ranges_cont
-
-
-
-# LOAD DATA ----
-
-# Import settings
-setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/sensitivity/*"))
-setting <- setting[setting != paste0(GROUP_dr, exp, "/gp/trained/sensitivity/err")]
-setting <- setting[setting != paste0(GROUP_dr, exp, "/gp/trained/sensitivity/param_ranges_manual.RData")]
-setting_id <- sub("_cv_sidx.RData", "", sub(".*agg_", "", sub(".*seeds_", "", setting)))
-
-
-# Import total effect sizes for each setting
-df <- data.frame("S_eff" = c(), "T_eff" = c(), scenario = c())
-
-for (i in 1:length(setting)) {
+# Define function to generate predictions
+predict.grid <- function(param.ranges, grid.ranges, ngrid, model, scale = TRUE) {
   
-  load(setting[i]) #loads list called sobol_idx_list
+  require(hetGP)
   
-  sobol_idx_list <- as.data.frame(sobol_idx_list[-3])
+  # Set up
+  D <- nrow(param.ranges)
+  scale.params <- t(param.ranges)
+  scale.grid <- t(grid.ranges)
   
-  sobol_idx_list$S_eff <- sobol_idx_list$S_eff / sum(sobol_idx_list$S_eff) # rescale so total = 1
-  sobol_idx_list$T_eff <- sobol_idx_list$T_eff / sum(sobol_idx_list$T_eff) # rescale so total = 1
+  # Scale grid to c(0, 1)
+  if (scale) {
+    for (i in 1:D) {
+      scale.grid[, i] <- (scale.grid[, i] - scale.params[1, i]) / (scale.params[2, i] - scale.params[1, i])
+    }
+  }
   
-  sobol_idx_list$scenario <- setting_id[i]
-  sobol_idx_list$parameter <- rownames(param_ranges_cont)
+  # Create grid of scenarios
+  scenarios <- list()
   
-  df <- rbind(df, sobol_idx_list)
+  for (i in 1:D) {
+    scenarios[[i]] <- seq(scale.grid[1, i], scale.grid[2, i], length.out = ngrid[i])
+  }
   
+  scenarios <- expand.grid(scenarios)
+  names(scenarios) <- rownames(param.ranges)
+  
+  
+  # Make predictions using emulator
+  preds <- predict(x = as.matrix(scenarios), object = model)
+  scenarios$mean <- preds$mean
+  scenarios$sd2 <- preds$sd2
+  scenarios$nugs <- preds$nugs
+  
+  # Covert parameter values back to original scale
+  for (i in rownames(param.ranges)) {
+    scenarios[, i] <- scenarios[, i] * (param.ranges[i, 2] - param.ranges[i, 1]) + param.ranges[i, 1]
+  }
+  
+  # Calculate standard error and 95% confidence interval
+  scenarios$se <- sqrt(scenarios$sd2 + scenarios$nugs)
+  scenarios$cl <- qnorm(0.05, scenarios$mean, scenarios$se)
+  scenarios$cu <- qnorm(0.95, scenarios$mean, scenarios$se)
+  
+  # Calculate target reduction
+  scenarios$target <- floor(scenarios$mean / 5) * 5
+  
+  return(scenarios)
 }
 
-df <- df %>%
-  separate(col = scenario, 
-           into = c("Experiment", "Seasonality", "System", "EIR", "Agegroup", "Decay", "Access", "Seed", "Temp", "Outcome", "Age"),
-           sep = "_",
-           remove = FALSE)
+# Define wrapper function to generate predictions over multiple outcome variables
+wrap.grid <- function(predictors, dir, exp, index, param.ranges, grid.ranges, ngrid) {
+  
+  # Generate predictions
+  df <- data.frame()
+  
+  for (pred in predictors) {
+    
+    # Load GP model
+    load(paste0(dir, exp, "/gp/trained/", pred, "/seeds_", index, "_", pred, "_cv.RData"))
+    
+    # Generate model predictions
+    temp <- predict.grid(param.ranges = param.ranges, 
+                         grid.ranges = grid.ranges, 
+                         ngrid = ngrid, 
+                         model = cv_result$GP_model)
+    
+    temp$scenario <- index
+    
+    # Format predictions
+    temp <- temp %>%
+      separate(col = scenario,
+               into = c("Experiment", "Seasonality", "System", "EIR", "Agegroup", "Decay", "Access", "Seed"),
+               sep = "_",
+               remove = FALSE)
+    temp$pred <- pred
+    
+    # Store predictions
+    df <- rbind(df, temp)
+    
+  }
+  
+  # Return outputs
+  return(df)
+}
 
 
+# GENERATE DATA ----
 
-# IMPORT BASELINE PREVALENCE ----
+# Define empty list
+data <- list()
 
-# Import from csv
-prev <- read.csv(paste0("/scicore/home/penny/brauna0000/M3TPP/Experiments/", exp, "/Outputs/Prevalence_prior_to_intervention.csv"))
-prev <- unique(prev[, c("Seasonality", "EIR", "Access", "AnnualPrev210.2030")])
+for (exp in experiments[1:3]) {
+  
+  # Load parameter ranges
+  load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
+  
+  # Define and load scenarios
+  setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/", predictors[1], "/*"))
+  (setting_id <- unique(sub("seeds_", "", sub(paste0("_", predictors[1], ".*"), "", basename(setting)))))
+  index <- 17
+  setting_id[index]
+  
+  # Generate grid
+  df <- wrap.grid(predictors = predictors, 
+                  dir = GROUP_dr, 
+                  exp = exp, 
+                  index = setting_id[index], 
+                  param.ranges = param_ranges_cont, 
+                  grid.ranges = rbind(Halflife = c(100, 500),
+                                      Efficacy = c(0.3, 1.0),
+                                      Kdecay = 4), # rapid decay
+                  ngrid = c(401, 71, 1)) 
+  
+  # Add column for coverage
+  df$Coverage <- NA
+  
+  data[[exp]] <- df
+}
 
-# Merge into data
-df <- merge(df, prev, by = c("Seasonality", "EIR", "Access"))
+for (exp in experiments[4]) {
+  
+  # Load parameter ranges
+  load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
+  
+  # Define and load scenarios
+  setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/", predictors[1], "/*"))
+  (setting_id <- unique(sub("seeds_", "", sub(paste0("_", predictors[1], ".*"), "", basename(setting)))))
+  index <- 17
+  setting_id[index]
+  
+  # Generate grid
+  df <- wrap.grid(predictors = predictors, 
+                  dir = GROUP_dr, 
+                  exp = exp, 
+                  index = setting_id[index], 
+                  param.ranges = param_ranges_cont, 
+                  grid.ranges = rbind(Coverage = 0.7,
+                                      Halflife = c(100, 500),
+                                      Efficacy = c(0.3, 1.0),
+                                      Kdecay = 4), # rapid decay
+                  ngrid = c(1, 401, 71, 1)) 
+  
+  data[[exp]] <- df
+}
+
+# Combine all datasets
+data <- do.call("rbind", data)
+
+# Format data
+data <- data %>%
+  mutate(pred = case_match(pred,
+                           "Reduction_CumCPPY_age10" ~ "Cumulative clinical cases by age 10",
+                           "Reduction_SevCumCPPY_age10" ~ "Cumulative severe cases by age 10"),
+         targetLabel = paste0(target, "%"),
+         Experiment = case_match(Experiment,
+                                 "Obj6v2PreEryth" ~ "Scenario 1. Perfect deployment",
+                                 "Obj6Scen2PreEryth" ~ "Scenario 2. Imperfect seasonal coverage",
+                                 "Obj6Scen3PreEryth" ~ "Scenario 3. Imperfect deployment",
+                                 "Obj6Scen4PreEryth" ~ "Scenario 4. Random allocation")) %>%
+  mutate(targetLabel = factor(targetLabel, levels = unique(targetLabel)[order(unique(target))]))
 
 
+# CONSTRUCT TAG ----
 
-# FORMAT DATA ----
-
-# Subset for predictors of interest
-df$OutcomeLabel <- paste0("Reduction_", df$Outcome, "_", df$Age)
-df <- df %>%
-  filter(OutcomeLabel %in% pred_list)
-
-df <- df %>%
+setting_label <- separate(as.data.frame(setting_id), 
+                          col = setting_id,
+                          into = c("Intervention", "Seasonality", "Setting", "EIR", "Agegroup", "Decay", "Access", "Seed"), 
+                          sep = "_")
+setting_label <- setting_label %>%
   mutate(Seasonality = case_match(Seasonality,
-                                  "seas4mo" ~ "4 month transmission season",
-                                  "seas6mo" ~ "6 month transmission season"),
-         Access = case_match(Access,
-                             "0.04" ~ "10% access to care",
-                             "0.2412" ~ "50% access to care"),
-         parameter = case_match(parameter,
-                                "EfficacyPEV" ~ "Pre-erythrocytic initial efficacy [30 - 100%]",
-                                "HalflifePEV" ~ "Pre-erythrocytic protection half-life [30 - 500 days]",
-                                "KdecayPEV" ~ "Pre-erythrocytic decay shape [0 - 10]",
-                                "EfficacyBSV" ~ "Blood stage initial efficacy [30 - 100%]",
-                                "HalflifeBSV" ~ "Blood stage protection half-life [30 - 500 days]",
-                                "KdecayBSV" ~ "Blood stage decay shape [0 - 10]"),
-         OutcomeLabel = case_match(OutcomeLabel,
-                              "Reduction_CumCPPY_age5" ~ "Red. in age 5 cum. uncomp. cases",
-                              "Reduction_SevCumCPPY_age5" ~ "Red. in age 5 cum. severe cases",
-                              "Reduction_CumCPPY_age10" ~ "Red. in age 10 cum. uncomp. cases",
-                              "Reduction_SevCumCPPY_age10" ~ "Red. in age 10 cum. severe cases"),
-         label = case_when(T_eff >= 0.08 ~ paste0(round(T_eff*100, 0), "%"),
-                           T_eff < 0.08 ~ ""),
-         AnnualPrev = paste0(round(AnnualPrev210.2030 * 100), "%")) %>%
-  mutate(parameter = factor(parameter, levels = c("Pre-erythrocytic initial efficacy [30 - 100%]",
-                                                  "Pre-erythrocytic protection half-life [30 - 500 days]",
-                                                  "Pre-erythrocytic decay shape [0 - 10]",
-                                                  "Blood stage initial efficacy [30 - 100%]",
-                                                  "Blood stage protection half-life [30 - 500 days]",
-                                                  "Blood stage decay shape [0 - 10]")),
-         OutcomeLabel = factor(OutcomeLabel, levels = c("Red. in age 5 cum. uncomp. cases",
-                                              "Red. in age 5 cum. severe cases",
-                                              "Red. in age 10 cum. uncomp. cases",
-                                              "Red. in age 10 cum. severe cases")),
-         AnnualPrev = factor(AnnualPrev, levels = unique(AnnualPrev)[order(as.numeric(sub("%", "", unique(AnnualPrev))))]))
+                                  "seas4mo" ~ "4 month",
+                                  "seas6mo" ~ "6 month"),
+         Access = case_match(as.character(Access),
+                             "0.04" ~ "10%",
+                             "0.2412" ~ "50%"))
+setting_label <- setting_label[index, ]
 
-
+tag <- paste0("Imperfect deployment scenario | 33% PfPR2-10 | ",
+              setting_label$Seasonality, " seasonal profile | ",
+              setting_label$Access, " access to first-line care | ",
+              "4 decay shape")
 
 
 # WRITE TO FILE ----
 
-saveRDS(df, "/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig27/data_fig27.rds")
+saveRDS(data, "./data_and_figures/supplement_fig27/data_fig27.rds")
+saveRDS(tag, "./data_and_figures/supplement_fig27/label_fig27.rds")

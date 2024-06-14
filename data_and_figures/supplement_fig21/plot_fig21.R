@@ -36,9 +36,6 @@ p <- p + geom_rect(data = data.frame("Outcome" = unique(dfOut[[1]]$Outcome)), ae
   geom_point(data = dfOutAggregate[[1]], aes(x = AgeGroup, y = medianValue, colour = Intervention), size = 1) +
   geom_ribbon(data = dfOutAggregate[[1]], aes(x = AgeGroup, ymin = minValue, ymax = maxValue, fill = Intervention), alpha = 0.2, linewidth = 0.3)
 
-p <- p + annotate(geom = "text", x = 2.5, y = 0, label = "Intervention age group", colour = cols[3], fontface = "bold", size = 2, family = "Times") + 
-  annotate(geom = "text", x = 7.5, y = 0, label = "Post-intervention age group", colour = "grey45", fontface = "bold", size = 2, family = "Times")
-
 p <- p + facet_wrap(. ~ Outcome, scales = "free_y")
 
 p <- p + theme(panel.border = element_blank(), 
@@ -74,9 +71,6 @@ q <- q + geom_rect(data = data.frame("Outcome" = unique(dfOut[[2]]$Outcome)), ae
   geom_line(data = dfOutAggregate[[2]], aes(x = AgeGroup, y = medianValue, colour = Intervention), linewidth = 0.5) +
   geom_point(data = dfOutAggregate[[2]], aes(x = AgeGroup, y = medianValue, colour = Intervention), size = 1) +
   geom_ribbon(data = dfOutAggregate[[2]], aes(x = AgeGroup, ymin = minValue, ymax = maxValue, fill = Intervention), alpha = 0.2, linewidth = 0.3)
-
-q <- q + annotate(geom = "text", x = 2.5, y = 0, label = "Intervention age group", colour = cols[3], fontface = "bold", size = 2, family = "Times") + 
-  annotate(geom = "text", x = 7.5, y = 0, label = "Post-intervention age group", colour = "grey45", fontface = "bold", size = 2, family = "Times")
 
 q <- q + facet_wrap(. ~ Outcome, scales = "free_y")
 
