@@ -54,9 +54,9 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 80, 10),
+  scale_y_continuous(breaks = seq(0, 80, 20),
                      limits = c(-10, 80),
-                     labels = paste0(seq(-10, 80, 10), "%")) +
+                     labels = paste0(seq(0, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -97,9 +97,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 80, 10),
+  scale_y_continuous(breaks = seq(0, 80, 20),
                      limits = c(-10, 80),
-                     labels = paste0(seq(-10, 80, 10), "%")) +
+                     labels = paste0(seq(0, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -138,9 +138,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 80, 10),
+  scale_y_continuous(breaks = seq(0, 80, 20),
                      limits = c(-10, 80),
-                     labels = paste0(seq(-10, 80, 10), "%")) +
+                     labels = paste0(seq(0, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -190,9 +190,9 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 30, 10),
+  scale_y_continuous(breaks = seq(0, 30, 10),
                      limits = c(-10, 30),
-                     labels = paste0(seq(-10, 30, 10), "%")) +
+                     labels = paste0(seq(0, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -233,9 +233,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 30, 10),
+  scale_y_continuous(breaks = seq(0, 30, 10),
                      limits = c(-10, 30),
-                     labels = paste0(seq(-10, 30, 10), "%")) +
+                     labels = paste0(seq(0, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -274,9 +274,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 30, 10),
+  scale_y_continuous(breaks = seq(0, 30, 10),
                      limits = c(-10, 30),
-                     labels = paste0(seq(-10, 30, 10), "%")) +
+                     labels = paste0(seq(0, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
