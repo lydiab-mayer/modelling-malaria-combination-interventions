@@ -63,7 +63,10 @@ dataDeploy <- dataDeploy %>%
          intervention = case_match(intervention,
                                    "SMC" ~ "SP-AQ",
                                    "PEV" ~ "Pre-erythrocytic therapeutic",
-                                   "BSV" ~ "Blood stage therapeutic")) %>%
+                                   "BSV" ~ "Blood stage therapeutic"),
+         coverage = case_match(y,
+                            "Timing for scenario 4.  Random allocation" ~ "30 - 100% coverage",
+                            .default = "100% coverage")) %>%
   mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-erythrocytic therapeutic", "Blood stage therapeutic")))
 
 
@@ -160,7 +163,7 @@ cols <- c("#EB5160", "#22223B", "#85B79D")
 
 q <- ggplot(data = dataDeploy)
 
-q <- q + geom_point(aes(x = month, y = timing, colour = intervention), size = 1.5)
+q <- q + geom_point(aes(x = month, y = timing, colour = intervention, shape = coverage), size = 1.5)
 
 q <- q + facet_wrap(y ~ ., ncol = 1)
 
@@ -177,15 +180,19 @@ q <- q + theme(panel.border = element_blank(),
                legend.title = element_text(family = "Times"),
                legend.text = element_text(family = "Times"),
                legend.position = "bottom",
+               legend.box = 'vertical',
                legend.key = element_rect(fill = "white"),
-               legend.key.width = unit(0.25, "cm"))
+               legend.key.width = unit(0.25, "cm"),
+               legend.margin = margin(-7, 0, 0, 0))
 
 q <- q + scale_colour_manual(values = cols) +
-  scale_y_continuous(limits = c(-1.2, 0.2))
+  scale_y_continuous(limits = c(-1.2, 0.2)) +
+  scale_shape_manual(values = c(16, 1))
 
 q <- q + labs(x = "Month",
               y = "",
-              colour = "")
+              colour = "",
+              shape = "")
 
 
 # ----------------------------------------------------------
@@ -203,11 +210,11 @@ r <- r + geom_line(data = dataTrace, aes(x = AgeGroup, y = medianValue, colour =
   geom_ribbon(data = dataTrace, aes(x = AgeGroup, ymin = minValue, ymax = maxValue, fill = Intervention), alpha = 0.2, linewidth = 0.3)
 
 # Add annotations at 5 years old
-r <- r + geom_segment(aes(x = 5, y = annotate5[1], xend = 5, yend = annotate5[2]),
-                      linewidth = 0.8) +
-  geom_point(aes(x = 5, y = annotate5),
-             size = 5,
-             shape = 45) +
+r <- r + #geom_segment(aes(x = 5, y = annotate5[1], xend = 5, yend = annotate5[2]),
+  #                     linewidth = 0.8) +
+  # geom_point(aes(x = 5, y = annotate5),
+  #            size = 5,
+  #            shape = 45) +
   geom_segment(aes(x = 5, y = 9, xend = 5, yend = 3),
                linewidth = 0.25,
                arrow = arrow(length = unit(0.3, "cm"))) +
@@ -222,11 +229,11 @@ r <- r + geom_segment(aes(x = 5, y = annotate5[1], xend = 5, yend = annotate5[2]
            size = 3)
 
 # Add annotations at 10 years old
-r <- r + geom_segment(aes(x = 10, y = annotate10[1], xend = 10, yend = annotate10[2]),
-                      linewidth = 0.8) +
-  geom_point(aes(x = 10, y = annotate10),
-             size = 5,
-             shape = 45) +
+r <- r + #geom_segment(aes(x = 10, y = annotate10[1], xend = 10, yend = annotate10[2]),
+  #                     linewidth = 0.8) +
+  # geom_point(aes(x = 10, y = annotate10),
+  #            size = 5,
+  #            shape = 45) +
   geom_segment(aes(x = 10, y = 13.5, xend = 10, yend = 11.5),
                linewidth = 0.25,
                arrow = arrow(length = unit(0.3, "cm"))) +
@@ -241,12 +248,12 @@ r <- r + geom_segment(aes(x = 10, y = annotate10[1], xend = 10, yend = annotate1
            size = 3)
 
 # Add annotations for SMC counterfactual
-r <- r + geom_segment(aes(x = 10.2, y = annotateCounterfactual[1], xend = 10.2, yend = annotateCounterfactual[2]),
-                      linewidth = 0.8) +
-  geom_point(aes(x = 10.2, y = annotateCounterfactual),
-             size = 5,
-             shape = 45) +
-  geom_segment(aes(x = 10.2, y = 3.7, xend = 10.2, yend = 8.2),
+r <- r + #geom_segment(aes(x = 10.2, y = annotateCounterfactual[1], xend = 10.2, yend = annotateCounterfactual[2]),
+  #                     linewidth = 0.8) +
+  # geom_point(aes(x = 10.2, y = annotateCounterfactual),
+  #            size = 5,
+  #            shape = 45) +
+  geom_segment(aes(x = 10, y = 3.7, xend = 10, yend = 9.5),
                linewidth = 0.25,
                arrow = arrow(length = unit(0.3, "cm"))) +
   annotate(geom = "label", 

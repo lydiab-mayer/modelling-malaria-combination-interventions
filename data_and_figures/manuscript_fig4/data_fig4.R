@@ -9,7 +9,7 @@
 rm(list = ls())
 
 # !!! Insert your experiment name here as a string, e.g. "MyExperiment" !!!
-exp <- "Obj6_Scen3_LayerCounterfactual_PreEryth"
+exp <- "Obj6_Scen3_BloodStage"
 
 # !!! Insert your predicted parameters here. Note that this must match with one column name in post-processing files !!!
 predictors <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")

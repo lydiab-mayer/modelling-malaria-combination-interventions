@@ -11,10 +11,10 @@ require(ggplot2)
 require(patchwork)
 
 # Load data
-data <- readRDS("/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig25/data_fig25.rds")
+data <- readRDS("./data_and_figures/supplement_fig25/data_fig25.rds")
 
 # Load tag
-tag <- readRDS("/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig25/label_fig25.rds")
+tag <- readRDS("./data_and_figures/supplement_fig25/label_fig25.rds")
 tag
 
 
@@ -50,9 +50,9 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 50, 10),
-                     limits = c(-10, 50),
-                     labels = paste0(seq(-10, 50, 10), "%")) +
+  scale_y_continuous(breaks = seq(-30, 80, 20),
+                     limits = c(-30, 80),
+                     labels = paste0(seq(-30, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -93,9 +93,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 50, 10),
-                     limits = c(-10, 50),
-                     labels = paste0(seq(-10, 50, 10), "%")) +
+  scale_y_continuous(breaks = seq(-30, 80, 20),
+                     limits = c(-30, 80),
+                     labels = paste0(seq(-30, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -134,9 +134,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 50, 10),
-                     limits = c(-10, 50),
-                     labels = paste0(seq(-10, 50, 10), "%")) +
+  scale_y_continuous(breaks = seq(-30, 80, 20),
+                     limits = c(-30, 80),
+                     labels = paste0(seq(-30, 80, 20), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -144,55 +144,13 @@ r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
 r <- r + labs(x = "Decay shape", y = "")
 
 
-## Generate plot for coverage ----
-
-# Define colours
-col <- "#3b597e"
-
-# Construct plot
-s <- ggplot(data[data$Parameter == "Coverage" & data$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(alpha = 0.15, linewidth = 0.1)
-
-s <- s + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
-
-s <- s + scale_x_continuous(breaks = seq(0.2, 1, by = 0.2),
-                            labels = paste0(seq(20, 100, by = 20), "%"),
-                            expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 50, 10),
-                     limits = c(-10, 50),
-                     labels = paste0(seq(-10, 50, 10), "%")) +
-  scale_linetype_manual(values = c("solid", "dashed")) +
-  scale_fill_manual(values = rep(col, 2), guide = "none") +
-  scale_colour_manual(values = rep(col, 2), guide = "none")
-
-s <- s + labs(x = "Intervention coverage", y = "")
-
-
 ## Construct all panels
 
-p1 <- p + q + r + s +
-  plot_layout(guides = "collect", nrow = 1) +
-  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes by five years old, random allocation scenario") &
+p1 <- p + q + r +
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes by five years old, imperfect seasonal coverage scenario") &
   theme(legend.position  = "none",
-        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 11, face = "bold", vjust = 5))
 
 
 
@@ -322,55 +280,13 @@ r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
 r <- r + labs(x = "Decay shape", y = "")
 
 
-## Generate plot for coverage ----
-
-# Define colours
-col <- "#3b597e"
-
-# Construct plot
-s <- ggplot(data[data$Parameter == "Coverage" & data$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(alpha = 0.15, linewidth = 0.1)
-
-s <- s + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
-
-s <- s + scale_x_continuous(breaks = seq(0.2, 1, by = 0.2),
-                            labels = paste0(seq(20, 100, by = 20), "%"),
-                            expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-10, 30, 10),
-                     limits = c(-10, 30),
-                     labels = paste0(seq(-10, 30, 10), "%")) +
-  scale_linetype_manual(values = c("solid", "dashed")) +
-  scale_fill_manual(values = rep(col, 2), guide = "none") +
-  scale_colour_manual(values = rep(col, 2), guide = "none")
-
-s <- s + labs(x = "Intervention coverage", y = "")
-
-
 ## Construct all panels ----
 
-p2 <- p + q + r + s +
-  plot_layout(guides = "collect", nrow = 1) +
-  plot_annotation(title = "B. Parameter relationships with cumulative case outcomes by ten years old, random allocation scenario") &
+p2 <- p + q + r +
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "B. Parameter relationships with cumulative case outcomes by ten years old, imperfect seasonal coverage scenario") &
   theme(legend.position  = "bottom",
-        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 11, face = "bold", vjust = 5))
 
 
 
@@ -378,7 +294,7 @@ p2 <- p + q + r + s +
 
 wrap_elements(p1) / wrap_elements(p2) + plot_layout(heights = c(0.9, 1))
 
-ggsave(filename = "/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig25/plot_fig25.jpeg",
+ggsave(filename = "./data_and_figures/supplement_fig25/plot_fig25.jpeg",
        plot = last_plot(),
        width = 8,
        height = 6.5,

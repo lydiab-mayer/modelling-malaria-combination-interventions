@@ -9,12 +9,13 @@
 rm(list = ls())
 require(ggplot2)
 require(patchwork)
+require(dplyr)
 
 # Load data
-data <- readRDS("/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig24/data_fig24.rds")
+data <- readRDS("./data_and_figures/supplement_fig24/data_fig24.rds")
 
 # Load tag
-tag <- readRDS("/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig24/label_fig24.rds")
+tag <- readRDS("./data_and_figures/supplement_fig24/label_fig24.rds")
 tag
 
 
@@ -50,9 +51,9 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-30, 80, 20),
-                     limits = c(-30, 80),
-                     labels = paste0(seq(-30, 80, 20), "%")) +
+  scale_y_continuous(breaks = seq(-10, 80, 10),
+                     limits = c(-10, 80),
+                     labels = paste0(seq(-10, 80, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -93,9 +94,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-30, 80, 20),
-                     limits = c(-30, 80),
-                     labels = paste0(seq(-30, 80, 20), "%")) +
+  scale_y_continuous(breaks = seq(-10, 80, 10),
+                     limits = c(-10, 80),
+                     labels = paste0(seq(-10, 80, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -134,9 +135,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(-30, 80, 20),
-                     limits = c(-30, 80),
-                     labels = paste0(seq(-30, 80, 20), "%")) +
+  scale_y_continuous(breaks = seq(-10, 80, 10),
+                     limits = c(-10, 80),
+                     labels = paste0(seq(-10, 80, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -148,9 +149,9 @@ r <- r + labs(x = "Decay shape", y = "")
 
 p1 <- p + q + r +
   plot_layout(guides = "collect") +
-  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes by five years old, imperfect seasonal coverage scenario") &
+  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes by five years old, perfect deployment scenario") &
   theme(legend.position  = "none",
-        plot.title = element_text(family = "Times", size = 11, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
 
 
 
@@ -284,9 +285,9 @@ r <- r + labs(x = "Decay shape", y = "")
 
 p2 <- p + q + r +
   plot_layout(guides = "collect") +
-  plot_annotation(title = "B. Parameter relationships with cumulative case outcomes by ten years old, imperfect seasonal coverage scenario") &
+  plot_annotation(title = "B. Parameter relationships with cumulative case outcomes by ten years old, perfect deployment scenario") &
   theme(legend.position  = "bottom",
-        plot.title = element_text(family = "Times", size = 11, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
 
 
 
@@ -294,8 +295,17 @@ p2 <- p + q + r +
 
 wrap_elements(p1) / wrap_elements(p2) + plot_layout(heights = c(0.9, 1))
 
-ggsave(filename = "/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig24/plot_fig24.jpeg",
+ggsave(filename = "./data_and_figures/supplement_fig24/plot_fig24.jpeg",
        plot = last_plot(),
        width = 8,
        height = 6.5,
        dpi = 400)
+
+
+# GENERATE POINT ESTIMATES FOR MANUSCRIPT TEXT ----
+
+data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ] %>%
+  filter(segLower == 0.6)
+
+data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ] %>%
+  filter(segLower == 4)

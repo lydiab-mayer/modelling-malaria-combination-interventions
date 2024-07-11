@@ -9,196 +9,127 @@
 rm(list = ls())
 
 # !!! Insert your experiment name here as a string, e.g. "MyExperiment" !!!
-experiments <- c("Obj6_v2_PreEryth", "Obj6_Scen2_PreEryth", "Obj6_Scen3_PreEryth", "Obj6_Scen4_PreEryth")
+exp <- "Obj6_Scen4_PreEryth"
 
 # !!! Insert your predicted parameters here. Note that this must match with one column name in post-processing files !!!
-predictors <- c("Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
+predictors <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
 
 # Load required packages
 library(tidyr)
 library(dplyr)
 
-# Define directories
 GROUP_dr <- "/scicore/home/penny/GROUP/M3TPP/"
 
-# Define function to generate predictions
-predict.grid <- function(param.ranges, grid.ranges, ngrid, model, scale = TRUE) {
-  
-  require(hetGP)
-  
-  # Set up
-  D <- nrow(param.ranges)
-  scale.params <- t(param.ranges)
-  scale.grid <- t(grid.ranges)
-  
-  # Scale grid to c(0, 1)
-  if (scale) {
-    for (i in 1:D) {
-      scale.grid[, i] <- (scale.grid[, i] - scale.params[1, i]) / (scale.params[2, i] - scale.params[1, i])
-    }
-  }
-  
-  # Create grid of scenarios
-  scenarios <- list()
-  
-  for (i in 1:D) {
-    scenarios[[i]] <- seq(scale.grid[1, i], scale.grid[2, i], length.out = ngrid[i])
-  }
-  
-  scenarios <- expand.grid(scenarios)
-  names(scenarios) <- rownames(param.ranges)
-  
-  
-  # Make predictions using emulator
-  preds <- predict(x = as.matrix(scenarios), object = model)
-  scenarios$mean <- preds$mean
-  scenarios$sd2 <- preds$sd2
-  scenarios$nugs <- preds$nugs
-  
-  # Covert parameter values back to original scale
-  for (i in rownames(param.ranges)) {
-    scenarios[, i] <- scenarios[, i] * (param.ranges[i, 2] - param.ranges[i, 1]) + param.ranges[i, 1]
-  }
-  
-  # Calculate standard error and 95% confidence interval
-  scenarios$se <- sqrt(scenarios$sd2 + scenarios$nugs)
-  scenarios$cl <- qnorm(0.05, scenarios$mean, scenarios$se)
-  scenarios$cu <- qnorm(0.95, scenarios$mean, scenarios$se)
-  
-  # Calculate target reduction
-  scenarios$target <- floor(scenarios$mean / 5) * 5
-  
-  return(scenarios)
-}
+load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
+param_ranges_cont
 
-# Define wrapper function to generate predictions over multiple outcome variables
-wrap.grid <- function(predictors, dir, exp, index, param.ranges, grid.ranges, ngrid) {
-  
-  # Generate predictions
-  df <- data.frame()
-  
-  for (pred in predictors) {
-    
-    # Load GP model
-    load(paste0(dir, exp, "/gp/trained/", pred, "/seeds_", index, "_", pred, "_cv.RData"))
-    
-    # Generate model predictions
-    temp <- predict.grid(param.ranges = param.ranges, 
-                         grid.ranges = grid.ranges, 
-                         ngrid = ngrid, 
-                         model = cv_result$GP_model)
-    
-    temp$scenario <- index
-    
-    # Format predictions
-    temp <- temp %>%
-      separate(col = scenario,
-               into = c("Experiment", "Seasonality", "System", "EIR", "Agegroup", "Decay", "Access", "Seed"),
-               sep = "_",
-               remove = FALSE)
-    temp$pred <- pred
-    
-    # Store predictions
-    df <- rbind(df, temp)
-    
-  }
-  
-  # Return outputs
-  return(df)
-}
+# Define and load scenarios
+setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/", predictors[1], "/*"))
+(setting_id <- unique(sub("seeds_", "", sub(paste0("_", predictors[1], ".*"), "", basename(setting)))))
+index <- 17
+setting_id[index]
 
 
 # GENERATE DATA ----
 
-# Define empty list
-data <- list()
+# Define number of segments for parameter ranges
+N <- 51
 
-# Define indices for scenarios to plot
-indices <- c(7, 8, 17, 18)
+# Define empty matrix to store outputs
+data <- matrix(NA, nrow = length(predictors) * nrow(param_ranges_cont) * (N - 1), ncol = 8)
+colnames(data) <- c("Scenario", "Outcome", "Parameter", "segLower", "segUpper", "quantile0.25", "median", "quantile0.75") 
+nRow <- nrow(data)
 
-for (exp in experiments[1:3]) {
-  
-  # Load parameter ranges
-  load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
-  
-  # Define and load scenarios
-  setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/", predictors[1], "/*"))
-  (setting_id <- unique(sub("seeds_", "", sub(paste0("_", predictors[1], ".*"), "", basename(setting)))))
-  
-  for (index in indices) {
-    
-    setting_id[index]
-    
-    # Generate grid
-    df <- wrap.grid(predictors = predictors, 
-                    dir = GROUP_dr, 
-                    exp = exp, 
-                    index = setting_id[index], 
-                    param.ranges = param_ranges_cont, 
-                    grid.ranges = rbind(Halflife = c(100, 500),
-                                        Efficacy = c(0.3, 1.0),
-                                        Kdecay = 0.7), # sustained decay
-                    ngrid = c(401, 71, 1)) 
-    
-    # Add column for coverage
-    df$Coverage <- NA
-  
-    data[[setting_id[index]]] <- df
+# Populate matrix with scenario, outcome and parameter names
+data[, "Scenario"] <- setting_id[index]
+data[, "Outcome"] <- rep(predictors, each = nRow / length(predictors))
+data[, "Parameter"] <- rep(rep(rownames(param_ranges_cont), each = N - 1), length(predictors))
+
+# For each parameter, cut the parameter space into segments and store segment boundaries
+for (pred in predictors) {
+  for (param in rownames(param_ranges_cont)) {
+    split <- seq(0, 1, length = N) # Note this assumes that parameters have been scaled to c(0, 1)
+    data[data[, "Outcome"] == pred & data[, "Parameter"] == param, "segLower"] <- split[1:(N - 1)]
+    data[data[, "Outcome"] == pred & data[, "Parameter"] == param, "segUpper"] <- split[2:N]
   }
 }
 
-for (exp in experiments[4]) {
-  
-  # Load parameter ranges
-  load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
-  
-  # Define and load scenarios
-  setting <- Sys.glob(paste0(GROUP_dr, exp, "/gp/trained/", predictors[1], "/*"))
-  (setting_id <- unique(sub("seeds_", "", sub(paste0("_", predictors[1], ".*"), "", basename(setting)))))
-  
-  for (index in indices) {
 
-    setting_id[index]
-    
-    # Generate grid
-    df <- wrap.grid(predictors = predictors, 
-                    dir = GROUP_dr, 
-                    exp = exp, 
-                    index = setting_id[index], 
-                    param.ranges = param_ranges_cont, 
-                    grid.ranges = rbind(Coverage = 0.7,
-                                        Halflife = c(100, 500),
-                                        Efficacy = c(0.3, 1.0),
-                                        Kdecay = 0.7), # sustained decay
-                    ngrid = c(1, 401, 71, 1)) 
-    
-    data[[setting_id[index]]] <- df
+for (pred in predictors) {
+  # Load Rdata object containing results of the sensitivity analysis, called 'sobol_idx_list'
+  load(paste0(GROUP_dr, exp, "/gp/trained/sensitivity/seeds_", setting_id[index], "_", pred, "_cv_sidx.RData"))
+  
+  # Store sampled parameter values and corresponding predicted values from sensitivity analysis
+  sensData <- sobol_idx_list$SA$X
+  sensData$outcome <- sobol_idx_list$SA$y
+  names(sensData) <- c(rownames(param_ranges_cont), pred)
+  
+  # For each parameter, extract median outcome and quantile range for each segment
+  for (i in 1:nRow) {
+    if(data[i, "Outcome"] == pred) {
+      temp <- sensData[sensData[, data[i, "Parameter"]] >= data[i, "segLower"] & sensData[, data[i, "Parameter"]] < data[i, "segUpper"], ]
+      data[i, c("quantile0.25", "median", "quantile0.75")] <- unname(quantile(temp[, pred], c(0.25, 0.5, 0.75)))
+    }
   }
 }
 
-# Combine all datasets
-data <- do.call("rbind", data)
 
-# Format data
+
+# FORMAT DATA ----
+
+# Format outputs as dataframe
+data <- as.data.frame(data) %>%
+  mutate(Outcome = as.factor(Outcome),
+         Parameter = as.factor(Parameter),
+         segLower = as.numeric(segLower),
+         segUpper = as.numeric(segUpper),
+         quantile0.25 = as.numeric(quantile0.25),
+         median = as.numeric(median),
+         quantile0.75 = as.numeric(quantile0.75))
+
+# Reverse scaling of parameter values
+for (param in rownames(param_ranges_cont)) {
+  data[data$Parameter == param, "segLower"] <- data[data$Parameter == param, "segLower"] * (param_ranges_cont[param, 2] - param_ranges_cont[param, 1]) + param_ranges_cont[param, 1]
+  data[data$Parameter == param, "segUpper"] <- data[data$Parameter == param, "segUpper"] * (param_ranges_cont[param, 2] - param_ranges_cont[param, 1]) + param_ranges_cont[param, 1]
+}
+
+# Remove missing values, since these represent results outside of the scope of the sensitivity analysis
+data <- data[!is.na(data$median), ]
+
+# Format factor variables
 data <- data %>%
-  mutate(pred = case_match(pred,
-                           "Reduction_CumCPPY_age10" ~ "Cumulative clinical cases by age 10",
-                           "Reduction_SevCumCPPY_age10" ~ "Cumulative severe cases by age 10"),
-         targetLabel = paste0(target, "%"),
-         Experiment = case_match(Experiment,
-                                 "Obj6v2PreEryth" ~ "Scenario 1\n Perfect deployment",
-                                 "Obj6Scen2PreEryth" ~ "Scenario 2\nImperfect seasonal coverage",
-                                 "Obj6Scen3PreEryth" ~ "Scenario 3\nImperfect deployment",
-                                 "Obj6Scen4PreEryth" ~ "Scenario 4\nRandom allocation"),
-         Seasonality = case_match(Seasonality,
-                                  "seas4mo" ~ "4 month seasonal profile",
-                                  "seas6mo" ~ "6 month seasonal profile"),
-         Access = case_match(Access,
-                             "0.04" ~ "10% access to care",
-                             "0.2412" ~ "50% access to care")) %>%
-  mutate(targetLabel = factor(targetLabel, levels = unique(targetLabel)[order(unique(target))]))
+  mutate(Outcome_age = case_match(Outcome,
+                                  c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5") ~ "5 years",
+                                  c("Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10") ~ "10 years"),
+         Outcome = case_match(Outcome,
+                              c("Reduction_CumCPPY_age5", "Reduction_CumCPPY_age10") ~ "Uncomplicated cases",
+                              c("Reduction_SevCumCPPY_age5", "Reduction_SevCumCPPY_age10") ~ "Severe cases")) %>%
+  mutate(Outcome = factor(Outcome,
+                          levels = c("Uncomplicated cases",
+                                     "Severe cases")))
 
 
-# WRITE TO FILE ----
+## CONSTRUCT ANNOTATION ----
+setting_label <- separate(as.data.frame(setting_id), 
+                          col = setting_id,
+                          into = c("Intervention", "Seasonality", "Setting", "EIR", "Agegroup", "Decay", "Access", "Seed"), 
+                          sep = "_")
+setting_label <- setting_label %>%
+  mutate(Seasonality = case_match(Seasonality,
+                                  "seas4mo" ~ "4 month",
+                                  "seas6mo" ~ "6 month"),
+         Access = case_match(as.character(Access),
+                             "0.04" ~ "10%",
+                             "0.2412" ~ "50%"))
+setting_label <- setting_label[index, ]
+
+tag <- paste0("Imperfect deployment scenario | 33% PfPR2-10 | ",
+              setting_label$Seasonality, " seasonal profile | ",
+              setting_label$Access, " access to first-line care")
+
+
+
+## WRITE TO FILE ----
 
 saveRDS(data, "./data_and_figures/supplement_fig26/data_fig26.rds")
+saveRDS(tag, "./data_and_figures/supplement_fig26/label_fig26.rds")

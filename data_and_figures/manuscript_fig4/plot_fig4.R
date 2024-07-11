@@ -9,6 +9,7 @@
 rm(list = ls())
 require(ggplot2)
 require(patchwork)
+require(dplyr)
 
 # Load data
 data <- readRDS("./data_and_figures/manuscript_fig4/data_fig4.rds")
@@ -50,14 +51,14 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 70, 10),
-                     limits = c(0, 70),
-                     labels = paste0(seq(0, 70, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 60, 10),
+                     limits = c(-10, 60),
+                     labels = paste0(seq(-10, 60, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 5 cum. cases\nvs pre-erythrocytic product")
+p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 5\ncum. cases vs SMC")
 
 
 ## Generate plot for efficacy ----
@@ -93,9 +94,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 70, 10),
-                     limits = c(0, 70),
-                     labels = paste0(seq(0, 70, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 60, 10),
+                     limits = c(-10, 60),
+                     labels = paste0(seq(-10, 60, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -134,9 +135,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 70, 10),
-                     limits = c(0, 70),
-                     labels = paste0(seq(0, 70, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 60, 10),
+                     limits = c(-10, 60),
+                     labels = paste0(seq(-10, 60, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -148,7 +149,7 @@ r <- r + labs(x = "Decay shape", y = "")
 
 p1 <- p + q + r +
   plot_layout(guides = "collect") +
-  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes by five years old") &
+  plot_annotation(title = "A. Blood stage parameter relationships with cumulative case outcomes by five years old") &
   theme(legend.position  = "none",
         plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
 
@@ -186,14 +187,14 @@ p <- p + theme(panel.border = element_blank(),
                legend.position = "bottom")
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 40, 10),
-                     limits = c(0, 40),
-                     labels = paste0(seq(0, 40, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 30, 10),
+                     limits = c(-10, 30),
+                     labels = paste0(seq(-10, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 10 cum. cases\nvs pre-erythrocytic product")
+p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 10\ncum. cases vs SMC")
 
 
 ## Generate plot for efficacy ----
@@ -229,9 +230,9 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
                             labels = paste0(seq(20, 100, by = 20), "%"),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 40, 10),
-                     limits = c(0, 40),
-                     labels = paste0(seq(0, 40, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 30, 10),
+                     limits = c(-10, 30),
+                     labels = paste0(seq(-10, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -270,9 +271,9 @@ r <- r + theme(panel.border = element_blank(),
 
 r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
                             expand = expansion(mult = .05, add = 0)) +
-  scale_y_continuous(breaks = seq(0, 40, 10),
-                     limits = c(0, 40),
-                     labels = paste0(seq(0, 40, 10), "%")) +
+  scale_y_continuous(breaks = seq(-10, 30, 10),
+                     limits = c(-10, 30),
+                     labels = paste0(seq(-10, 30, 10), "%")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
@@ -284,7 +285,7 @@ r <- r + labs(x = "Decay shape", y = "")
 
 p2 <- p + q + r +
   plot_layout(guides = "collect") +
-  plot_annotation(title = "B. Parameter relationships with cumulative case outcomes by ten years old") &
+  plot_annotation(title = "B. Blood stage parameter relationships with cumulative case outcomes by ten years old") &
   theme(legend.position  = "bottom",
         plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
 
@@ -299,3 +300,16 @@ ggsave(filename = "./data_and_figures/manuscript_fig4/fig4.jpeg",
        width = 8,
        height = 6.5,
        dpi = 400)
+
+
+# GENERATE POINT ESTIMATES FOR MANUSCRIPT TEXT ----
+
+data[data$Parameter == "Efficacy" & data$Outcome_age == "10 years", ] %>%
+  filter(median >= 0) %>%
+  group_by(Outcome) %>%
+  summarise(segLower = min(segLower))
+
+data[data$Parameter == "Efficacy" & data$Outcome_age == "10 years", ] %>%
+  filter(median >= 10) %>%
+  group_by(Outcome) %>%
+  summarise(segLower = min(segLower))

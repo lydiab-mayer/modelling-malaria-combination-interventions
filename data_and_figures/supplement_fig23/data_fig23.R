@@ -9,7 +9,7 @@
 rm(list = ls())
 
 # !!! Insert your experiment name here as a string, e.g. "MyExperiment" !!!
-exp <- "Obj6_v2_PreEryth"
+exp <- "Obj6_Scen3_LayerCounterfactual_PreEryth"
 
 # !!! Insert your predicted parameters here. Note that this must match with one column name in post-processing files !!!
 predictors <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
@@ -18,9 +18,7 @@ predictors <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reductio
 library(tidyr)
 library(dplyr)
 
-user <- strsplit(getwd(), "/", fixed = FALSE, perl = FALSE, useBytes = FALSE)[[1]][5]
 GROUP_dr <- "/scicore/home/penny/GROUP/M3TPP/"
-setwd(paste0("/scicore/home/penny/", user, "/M3TPP/Experiments/", exp))
 
 load(paste0(GROUP_dr, exp, "/param_ranges.RData"))
 param_ranges_cont
@@ -133,5 +131,6 @@ tag <- paste0("Imperfect deployment scenario | 33% PfPR2-10 | ",
 
 ## WRITE TO FILE ----
 
-saveRDS(data, "/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig23/data_fig23.rds")
-saveRDS(tag, "/scicore/home/penny/brauna0000/M3TPP/data_and_figures/supplement_fig23/label_fig23.rds")
+saveRDS(data, "./data_and_figures/supplement_fig23/data_fig23.rds")
+saveRDS(tag, "./data_and_figures/supplement_fig23/label_fig23.rds")
+
