@@ -21,6 +21,27 @@ tag
 
 # GENERATE PLOT FOR 5 YEAR OUTCOMES ----
 
+plotTheme <- theme(panel.border = element_blank(), 
+                   panel.background = element_blank(),
+                   panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
+                   panel.grid.major.x = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   text = element_text(family = "Times", size = 10),
+                   strip.background = element_blank(),
+                   strip.text = element_text(face = "bold", size = 10),
+                   axis.line = element_blank(),
+                   axis.text.x = element_text(colour = "grey45"),
+                   axis.text.y = element_text(colour = "grey45"),
+                   axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
+                   axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
+                   plot.title = element_text(hjust = 0.5, face = "bold"),
+                   legend.text = element_text(size = 10),
+                   legend.title = element_blank(),
+                   legend.key.height = unit(0.5, "cm"),
+                   legend.key.width = unit(1.2, "cm"),
+                   legend.key = element_rect(fill="white"), 
+                   legend.position = "bottom")
+
 ## Generate plot for halflife ----
 
 # Define colours
@@ -31,24 +52,7 @@ p <- ggplot(data[data$Parameter == "Halflife" & data$Outcome_age == "5 years", ]
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-p <- p + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+p <- p + plotTheme
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_y_continuous(breaks = seq(-10, 60, 10),
@@ -58,7 +62,8 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 5\ncum. cases vs SMC")
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction in age 5\ncumulative cases vs SMC") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Generate plot for efficacy ----
@@ -71,24 +76,7 @@ q <- ggplot(data[data$Parameter == "Efficacy" & data$Outcome_age == "5 years", ]
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-q <- q + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+q <- q + plotTheme
 
 q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
@@ -101,7 +89,8 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-q <- q + labs(x = "Initial efficacy", y = "")
+q <- q + labs(x = "Initial efficacy", y = "") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Generate plot for kdecay ----
@@ -114,26 +103,9 @@ r <- ggplot(data[data$Parameter == "Kdecay" & data$Outcome_age == "5 years", ], 
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-r <- r + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+r <- r + plotTheme
 
-r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
+r <- r + scale_x_continuous(breaks = seq(0, 10, by = 2),
                             expand = expansion(mult = .05, add = 0)) +
   scale_y_continuous(breaks = seq(-10, 60, 10),
                      limits = c(-10, 60),
@@ -142,7 +114,8 @@ r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-r <- r + labs(x = "Decay shape", y = "")
+r <- r + labs(x = "Decay shape", y = "") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Construct all panels
@@ -151,7 +124,7 @@ p1 <- p + q + r +
   plot_layout(guides = "collect") +
   plot_annotation(title = "A. Blood stage parameter relationships with cumulative case outcomes by five years old") &
   theme(legend.position  = "none",
-        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 10, face = "bold", vjust = 5))
 
 
 
@@ -167,24 +140,7 @@ p <- ggplot(data[data$Parameter == "Halflife" & data$Outcome_age == "10 years", 
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-p <- p + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+p <- p + plotTheme
 
 p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_y_continuous(breaks = seq(-10, 30, 10),
@@ -194,7 +150,8 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 10\ncum. cases vs SMC")
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction in age 10\ncumulative cases vs SMC") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Generate plot for efficacy ----
@@ -207,24 +164,7 @@ q <- ggplot(data[data$Parameter == "Efficacy" & data$Outcome_age == "10 years", 
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-q <- q + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+q <- q + plotTheme
 
 q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
                             limits = c(0.2, 1.0),
@@ -237,7 +177,8 @@ q <- q + scale_x_continuous(breaks = seq(0.2, 1.0, by = 0.2),
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-q <- q + labs(x = "Initial efficacy", y = "")
+q <- q + labs(x = "Initial efficacy", y = "") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Generate plot for kdecay ----
@@ -250,26 +191,9 @@ r <- ggplot(data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ],
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
-r <- r + theme(panel.border = element_blank(), 
-               panel.background = element_blank(),
-               panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-               panel.grid.major.x = element_blank(),
-               panel.grid.minor = element_blank(),
-               text = element_text(family = "Times", size = 10),
-               strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
-               plot.title = element_text(hjust = 0.5, face = "bold"),
-               legend.text = element_text(size = 10),
-               legend.title = element_blank(),
-               legend.key.width = unit(1.2, "cm"), 
-               legend.position = "bottom")
+r <- r + plotTheme
 
-r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
+r <- r + scale_x_continuous(breaks = seq(0, 10, by = 2),
                             expand = expansion(mult = .05, add = 0)) +
   scale_y_continuous(breaks = seq(-10, 30, 10),
                      limits = c(-10, 30),
@@ -278,7 +202,8 @@ r <- r + scale_x_continuous(breaks = seq(0, 10, by = 1),
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-r <- r + labs(x = "Decay shape", y = "")
+r <- r + labs(x = "Decay shape", y = "") +
+  guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
 ## Construct all panels ----
@@ -287,7 +212,7 @@ p2 <- p + q + r +
   plot_layout(guides = "collect") +
   plot_annotation(title = "B. Blood stage parameter relationships with cumulative case outcomes by ten years old") &
   theme(legend.position  = "bottom",
-        plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 5))
+        plot.title = element_text(family = "Times", size = 10, face = "bold", vjust = 7))
 
 
 

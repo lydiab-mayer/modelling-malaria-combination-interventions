@@ -54,7 +54,7 @@ for (exp in experiments) {
   
   # Recode variables
   if (grepl("LayerCounterfactual", exp, fixed = TRUE)) {
-    counterfactualLabel <- "Pre-erythrocytic therapeutic"
+    counterfactualLabel <- "Pre-liver stage therapeutic"
   } else {
     counterfactualLabel <- "SMC"
   }
@@ -67,7 +67,7 @@ for (exp in experiments) {
            Intervention = case_match(Intervention,
                                      "Baseline" ~ "No intervention",
                                      "Counterfactual" ~ counterfactualLabel,
-                                     "Intervention" ~ "SMC + pre-erythrocytic therapeutic"),
+                                     "Intervention" ~ "SMC + pre-liver stage therapeutic"),
            TherapeuticProfile = case_match(Halflife,
                                            param_ranges_cont[1, 1] ~ "Short duration, moderate efficacy therapeutic",
                                            param_ranges_cont[1, 2] ~ "Long duration, high efficacy therapeutic"),
@@ -124,9 +124,9 @@ for (index in 1:2) {
                                  round(mean(df$AnnualPrev210.2030*100)), "% PfPR2-10 | ",
                                  setting_label$Seasonality, " seasonal profile | ",
                                  setting_label$Access, " access to first-line care\n",
-                                 round(param_ranges_cont[1, index]), " day pre-erythrocytic half-life | ",
-                                 round(param_ranges_cont[2, index] * 100), "% pre-erythrocytic efficacy | ",
-                                 round(param_ranges_cont[3, index], 1), " pre-erythrocytic decay shape")
+                                 round(param_ranges_cont[1, index]), " day pre-liver stage half-life | ",
+                                 round(param_ranges_cont[2, index] * 100), "% pre-liver stage efficacy | ",
+                                 round(param_ranges_cont[3, index], 1), " pre-liver stage decay shape")
 }
 
 # ----------------------------------------------------------

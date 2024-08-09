@@ -47,7 +47,7 @@ p <- p + theme(panel.border = element_blank(),
                panel.background = element_blank(),
                panel.grid = element_blank(),
                text = element_text(family = "Times"),
-               strip.text = element_text(face = "bold", size = 12),
+               strip.text = element_text(face = "bold", size = 10),
                strip.background = element_blank(),
                axis.line = element_blank(),
                axis.ticks = element_blank(),
@@ -56,22 +56,22 @@ p <- p + theme(panel.border = element_blank(),
                axis.text.y = element_blank(),
                axis.ticks.y = element_blank(),
                plot.title.position = "plot",
-               plot.title = element_text(size = 12, face = "bold"),
+               plot.title = element_text(size = 12, face = "bold", vjust = -7),
                plot.tag.position = c(.5, 0),
                plot.tag = element_text(size = 8, face = "plain"),
                legend.key = element_blank(),
                legend.position = "bottom",
-               legend.margin = margin(-3, 0, 10, 0))
+               legend.margin = margin(-3, 0, 0, 0))
 
 p <- p + scale_fill_manual(values = cols) +
   scale_colour_manual(values = text_cols)
 
 p <- p + labs(x = expression(bold(paste("Baseline annual ", bolditalic("Pf"), "PR"["2-10"]))),
-              y = "Variation in outcome attributed\nto parameter",
+              y = "Variation in outcome\nattributed to parameter",
               fill = "",
               title = "A")
 
-p <- p + guides(fill = guide_legend(ncol = 3))
+p <- p + guides(fill = guide_legend(ncol = 2))
 
 pA <- p
 
@@ -104,15 +104,15 @@ p <- p + theme(panel.border = element_blank(),
                panel.grid.minor = element_blank(),
                text = element_text(family = "Times", size = 10),
                strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
+               strip.text = element_text(face = "bold", size = 10),
                axis.line = element_blank(),
                axis.text.x = element_text(colour = "grey45"),
                axis.text.y = element_text(colour = "grey45"),
                axis.title.x = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(t = 10)),
                axis.title.y = element_text(colour = "grey30", face = "bold", size = 10, margin = margin(r = 10)),
                plot.title.position = "plot",
-               plot.title = element_text(face = "bold", size = 12),
-               legend.text = element_text(size = 11),
+               plot.title = element_text(face = "bold", size = 12, vjust = -7),
+               legend.text = element_text(size = 10),
                legend.key = element_blank(),
                legend.title = element_blank(),
                legend.position = "bottom")
@@ -122,7 +122,7 @@ p <- p + scale_colour_manual(values = cols) +
                      labels = paste0(seq(-20, 80, 20), "%"))
 
 p <- p + labs(x = expression(bold(paste("Baseline annual ", bolditalic("Pf"), "PR"["2-10"]))),
-              y = "Median expected reduction relative to SMC",
+              y = "Median expected reduction vs SMC",
               title = "B")
 
 pB <- p
@@ -144,12 +144,12 @@ ggsave(filename = "./data_and_figures/manuscript_fig5/fig5.jpeg",
 
 data_text <- dataB %>%
   select(Seasonality:Access, Experiment, Outcome:Age, median) %>%
-  filter(Experiment %in% c("Pre-erythrocytic activity alone", "Pre-erythrocytic and blood stage activity")) %>%
+  filter(Experiment %in% c("Pre-liver stage activity alone", "Pre-liver and blood stage activity")) %>%
   pivot_wider(names_from = Experiment,
               values_from = median)
 
 data_text <- data_text %>%
-  mutate(diff = `Pre-erythrocytic and blood stage activity` - `Pre-erythrocytic activity alone`) %>%
+  mutate(diff = `Pre-liver and blood stage activity` - `Pre-liver stage activity alone`) %>%
   group_by(Age) %>%
   summarise(maxdiff = max(diff),
             mindiff = min(diff))

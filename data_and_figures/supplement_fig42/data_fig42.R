@@ -91,9 +91,9 @@ data <- data %>%
                              "0.04" ~ "10% access to care",
                              "0.2412" ~ "50% access to care"),
          Experiment = case_match(Experiment,
-                                 "Obj6v2PreEryth" ~ "Pre-erythrocytic activity alone",
+                                 "Obj6v2PreEryth" ~ "Pre-liver stage activity alone",
                                  "Obj6Scen1BloodStage" ~ "Blood stage activity alone",
-                                 "Obj6Scen1PreErythBloodStage" ~ "Pre-erythrocytic and blood stage activity"),
+                                 "Obj6Scen1PreErythBloodStage" ~ "Pre-liver and blood stage activity"),
          Outcome = case_match(Outcome,
                               "CumCPPY" ~ "Reduction in cumulative uncomplicated cases",
                               "SevCumCPPY" ~ "Reduction in cumulative severe cases"),
@@ -111,9 +111,9 @@ data$AnnualPrev[data$AnnualPrev == "63%"] <- "64%"
 
 # Order factor levels
 data <- data %>%
-  mutate(Experiment = factor(Experiment, levels = c("Pre-erythrocytic activity alone",
+  mutate(Experiment = factor(Experiment, levels = c("Pre-liver stage activity alone",
                                                     "Blood stage activity alone",
-                                                    "Pre-erythrocytic and blood stage activity")),
+                                                    "Pre-liver and blood stage activity")),
          Outcome = factor(Outcome, levels = c("Reduction in cumulative uncomplicated cases", 
                                               "Reduction in cumulative severe cases")),
          Age = factor(Age, levels = c("5 years old", 

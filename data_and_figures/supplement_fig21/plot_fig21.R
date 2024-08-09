@@ -50,6 +50,7 @@ p <- p + theme(panel.border = element_blank(),
                axis.title = element_text(family = "Times", colour = "grey30", face="bold", size = 8), 
                legend.position = "bottom",
                legend.key = element_rect(fill = NA),
+               legend.text = element_text(family = "Times"),
                title = element_text(family = "Times", face = "bold", size = 10),
                plot.title.position = "plot")
 

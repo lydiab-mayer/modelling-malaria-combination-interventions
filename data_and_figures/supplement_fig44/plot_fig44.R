@@ -11,7 +11,7 @@ require(patchwork)
 require(dplyr)
 
 # Load data
-data <- readRDS("./data_and_figures/supplement_fig43/data_fig43.rds")
+data <- readRDS("./data_and_figures/supplement_fig44/data_fig44.rds")
 
 
 # GENERATE PLOT ----
@@ -42,7 +42,7 @@ p <- p + theme(panel.border = element_blank(),
                panel.grid.minor = element_blank(),
                text = element_text(family = "Times", size = 10),
                strip.background = element_blank(),
-               strip.text = element_text(face = "bold", size = 12),
+               strip.text = element_text(face = "bold", size = 9.5),
                axis.line = element_blank(),
                axis.text.x = element_text(colour = "grey45"),
                axis.text.y = element_text(colour = "grey45"),
@@ -67,7 +67,7 @@ p
 
 # SAVE FIGURE ----
 
-ggsave(filename = "./data_and_figures/supplement_fig43/fig43.jpeg",
+ggsave(filename = "./data_and_figures/supplement_fig44/fig44.jpeg",
        plot = last_plot(),
        width = 8,
        height = 5,

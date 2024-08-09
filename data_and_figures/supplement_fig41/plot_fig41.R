@@ -33,13 +33,13 @@ p <- p + geom_text(aes(colour = parameter),
                    size = fontsize*0.28,
                    show.legend = FALSE)
 
-p <- p + facet_wrap(OutcomeLabel ~ Seasonality + Access, scales = "free")
+p <- p + facet_grid(OutcomeLabel ~ Seasonality + Access, scales = "free")
 
 p <- p + theme(panel.border = element_blank(),
                panel.background = element_blank(),
                panel.grid = element_blank(),
                text = element_text(family = "Times"),
-               strip.text = element_text(face = "bold", size = 9),
+               strip.text = element_text(face = "bold", size = 8),
                strip.background = element_blank(),
                axis.line = element_blank(),
                axis.ticks = element_blank(),
@@ -52,6 +52,7 @@ p <- p + theme(panel.border = element_blank(),
                plot.tag = element_text(size = 8, face = "plain"),
                legend.key = element_blank(),
                legend.position = "bottom",
+               legend.text = element_text(size = 7),
                legend.margin = margin(-3, 0, 10, 0))
 
 p <- p + scale_fill_manual(values = cols) +

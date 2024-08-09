@@ -62,12 +62,12 @@ dataDeploy <- dataDeploy %>%
   mutate(month = as.factor(month),
          intervention = case_match(intervention,
                                    "SMC" ~ "SP-AQ",
-                                   "PEV" ~ "Pre-erythrocytic therapeutic",
+                                   "PEV" ~ "Pre-liver stage therapeutic",
                                    "BSV" ~ "Blood stage therapeutic"),
          coverage = case_match(y,
                             "Timing for scenario 4.  Random allocation" ~ "30 - 100% coverage",
                             .default = "100% coverage")) %>%
-  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-erythrocytic therapeutic", "Blood stage therapeutic")))
+  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-liver stage therapeutic", "Blood stage therapeutic")))
 
 
 # ----------------------------------------------------------
@@ -81,7 +81,7 @@ dataTrace <- readRDS("./data_and_figures/manuscript_fig2/data_aggregate_fig2.rds
 dataTrace <- dataTrace %>%
   filter(Outcome == "Uncomplicated malaria",
          TherapeuticProfile == "Long duration, high efficacy therapeutic",
-         !(Experiment == "Obj6_Scen3_LayerCounterfactual_PreErythProfiles" & Intervention == "SMC + pre-erythrocytic therapeutic"))
+         !(Experiment == "Obj6_Scen3_LayerCounterfactual_PreErythProfiles" & Intervention == "SMC + pre-liver stage therapeutic"))
 
 # Extract annotation positions
 annotate5 <- dataTrace %>%
@@ -100,7 +100,7 @@ annotate10 <- dataTrace %>%
   pull()
 annotateCounterfactual <- dataTrace %>%
   filter(AgeGroup == 10,
-         Intervention %in% c("Pre-erythrocytic therapeutic", "SMC + pre-erythrocytic therapeutic")) %>%
+         Intervention %in% c("Pre-liver stage therapeutic", "SMC + pre-liver stage therapeutic")) %>%
   ungroup() %>%
   select(medianValue) %>%
   pull()
@@ -114,7 +114,7 @@ p <- ggplot(data = dataSeason)
 
 p <- p + geom_line(aes(x = month, y = seasonality, group = seasProfile, linetype = seasProfile), colour = "black")
 
-p <- p + geom_segment(aes(x = 7.1, y = 0.23991470, xend = 8, yend = 0.23991470), linewidth = 0.4) +
+p <- p + 
   annotate(geom = "label", 
            x = 9.5, 
            y = 0.23991470,
@@ -124,7 +124,7 @@ p <- p + geom_segment(aes(x = 7.1, y = 0.23991470, xend = 8, yend = 0.23991470),
            alpha = 0.75,
            label.size = NA,
            size = 3) +
-  geom_segment(aes(x = 8.1, y = 0.11746577, xend = 9, yend = 0.11746577), linewidth = 0.5) +
+  geom_segment(aes(x = 7.1, y = 0.23991470, xend = 8.25, yend = 0.23991470), linewidth = 0.4) +
   annotate(geom = "label", 
            x = 10.5, 
            y = 0.11746577,
@@ -133,12 +133,13 @@ p <- p + geom_segment(aes(x = 7.1, y = 0.23991470, xend = 8, yend = 0.23991470),
            fill = "white",
            alpha = 0.75,
            label.size = NA,
-           size = 3)
+           size = 3) +
+geom_segment(aes(x = 8.1, y = 0.11746577, xend = 9.25, yend = 0.11746577), linewidth = 0.5)
 
 p <- p + theme(panel.border = element_blank(), 
                panel.background = element_blank(),
                strip.background = element_blank(),
-               strip.text = element_text(family = "Times", face = "bold", size = 10),
+               strip.text = element_text(family = "Times", face = "bold", size = 9),
                panel.grid.major.y = element_blank(),
                panel.grid.major.x = element_line(colour = "grey80", linetype = "dotted"),
                panel.grid.minor = element_blank(),
@@ -146,8 +147,8 @@ p <- p + theme(panel.border = element_blank(),
                axis.ticks = element_blank(),
                axis.text.x = element_text(family = "Times", colour = "grey45", margin = margin(t = 5)),
                axis.text.y = element_blank(),
-               axis.title = element_text(family = "Times", colour = "grey45", size = 10),
-               plot.title = element_text(family = "Times", face = "bold", size = 10),
+               axis.title = element_text(family = "Times", colour = "grey45", size = 9),
+               plot.title = element_text(family = "Times", face = "bold", size = 9),
                legend.position = "none")
 
 p <- p + labs(x = "Month",
@@ -170,15 +171,15 @@ q <- q + facet_wrap(y ~ ., ncol = 1)
 q <- q + theme(panel.border = element_blank(), 
                panel.background = element_blank(),
                strip.background = element_blank(),
-               strip.text = element_text(family = "Times", size = 10, hjust = 0),
+               strip.text = element_text(family = "Times", size = 9, hjust = 0),
                panel.grid.major.x = element_line(colour = "grey80", linetype = "dotted"),
                axis.line = element_blank(),
                axis.ticks = element_blank(),
                axis.text.x = element_text(family = "Times", colour = "grey45", margin = margin(t = 5)),
                axis.text.y = element_blank(),
-               axis.title = element_text(family = "Times", colour = "grey45", size = 10),
+               axis.title = element_text(family = "Times", colour = "grey45", size = 9),
                legend.title = element_text(family = "Times"),
-               legend.text = element_text(family = "Times"),
+               legend.text = element_text(family = "Times", size = 8),
                legend.position = "bottom",
                legend.box = 'vertical',
                legend.key = element_rect(fill = "white"),
@@ -226,7 +227,7 @@ r <- r + #geom_segment(aes(x = 5, y = annotate5[1], xend = 5, yend = annotate5[2
            fill = "white",
            alpha = 0.75,
            label.size = NA,
-           size = 3)
+           size = 2.75)
 
 # Add annotations at 10 years old
 r <- r + #geom_segment(aes(x = 10, y = annotate10[1], xend = 10, yend = annotate10[2]),
@@ -245,7 +246,7 @@ r <- r + #geom_segment(aes(x = 10, y = annotate10[1], xend = 10, yend = annotate
            fill = "white",
            alpha = 0.75,
            label.size = NA,
-           size = 3)
+           size = 2.75)
 
 # Add annotations for SMC counterfactual
 r <- r + #geom_segment(aes(x = 10.2, y = annotateCounterfactual[1], xend = 10.2, yend = annotateCounterfactual[2]),
@@ -259,17 +260,17 @@ r <- r + #geom_segment(aes(x = 10.2, y = annotateCounterfactual[1], xend = 10.2,
   annotate(geom = "label", 
            x = 8.6, 
            y = 2.5,
-           label = "Reductions are evaluated\nboth relative to SMC,\nand to the new therapeutic",
+           label = "Reductions are evaluated\n relative to SMC and\nto the new therapeutic",
            family = "Times",
            fill = "white",
            alpha = 0.75,
            label.size = NA,
-           size = 3)
+           size = 2.75)
 
 r <- r + theme(panel.border = element_rect(colour = "grey80", fill = NA), 
                panel.background = element_blank(),
                strip.background = element_blank(),
-               strip.text = element_text(family = "Times", face = "bold", size = 10),
+               strip.text = element_text(family = "Times", face = "bold", size = 9),
                panel.grid.major = element_line(colour = "grey80", linetype = "dotted"),
                panel.grid.minor = element_blank(),
                axis.ticks = element_blank(),
@@ -278,8 +279,8 @@ r <- r + theme(panel.border = element_rect(colour = "grey80", fill = NA),
                legend.position = "bottom",
                legend.key = element_rect(fill = NA),
                legend.key.width = unit(0.4, "cm"),
-               legend.text = element_text(family = "Times"),
-               axis.title = element_text(family = "Times", colour = "grey45", size = 10))
+               legend.text = element_text(family = "Times", size = 8),
+               axis.title = element_text(family = "Times", colour = "grey45", size = 9))
 
 r <- r + scale_colour_manual(values = cols) +
   scale_fill_manual(values = cols, guide = "none") +
@@ -308,7 +309,7 @@ p + q + r +
 
 ggsave(filename = paste0("./data_and_figures/manuscript_fig1/fig1.jpg"),
        plot = last_plot(),
-       width = 8.2,
+       width = 9,
        height = 5.5,
        dpi = 400)
 

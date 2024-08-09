@@ -47,9 +47,9 @@ df <- df %>%
 df <- df %>%
   mutate(intervention = case_match(intervention,
                                    "SPAQ" ~ "SP-AQ",
-                                   "PE" ~ "Pre-erythrocytic therapeutic",
+                                   "PE" ~ "Pre-liver stage therapeutic",
                                    "BS" ~ "Blood stage therapeutic")) %>%
-  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-erythrocytic therapeutic", "Blood stage therapeutic")))
+  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-liver stage therapeutic", "Blood stage therapeutic")))
 
 
 ## Construct plot --------------------------------------------------------------
@@ -111,9 +111,9 @@ df <- df %>%
 df <- df %>%
   mutate(intervention = case_match(intervention,
                                    "SPAQ" ~ "SP-AQ",
-                                   "PE" ~ "Pre-erythrocytic therapeutic",
+                                   "PE" ~ "Pre-liver stage therapeutic",
                                    "BS" ~ "Blood stage therapeutic")) %>%
-  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-erythrocytic therapeutic", "Blood stage therapeutic")))
+  mutate(intervention = factor(intervention, levels = c("SP-AQ", "Pre-liver stage therapeutic", "Blood stage therapeutic")))
 
 
 ## Construct plot --------------------------------------------------------------

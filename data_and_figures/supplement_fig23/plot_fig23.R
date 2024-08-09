@@ -57,7 +57,7 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 5 cum. cases\nvs pre-erythrocytic product")
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 5 cumulative cases\nvs pre-liver stage therapeutic")
 
 
 ## Generate plot for efficacy ----
@@ -193,7 +193,7 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median red. in age 10 cum. cases\nvs pre-erythrocytic product")
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 10 cumulative cases\nvs pre-liver stage therapeutic")
 
 
 ## Generate plot for efficacy ----
@@ -297,5 +297,5 @@ wrap_elements(p1) / wrap_elements(p2) + plot_layout(heights = c(0.9, 1))
 ggsave(filename = "./data_and_figures/supplement_fig23/fig23.jpeg",
        plot = last_plot(),
        width = 8,
-       height = 6.5,
+       height = 7,
        dpi = 400)

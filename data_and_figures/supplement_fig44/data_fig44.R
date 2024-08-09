@@ -91,9 +91,9 @@ data <- data %>%
                              "0.04" ~ "10% access to care",
                              "0.2412" ~ "50% access to care"),
          Experiment = case_match(Experiment,
-                                 "Obj6Scen4PreEryth" ~ "Pre-erythrocytic activity alone",
+                                 "Obj6Scen4PreEryth" ~ "Pre-liver stage activity alone",
                                  "Obj6Scen4BloodStage" ~ "Blood stage activity alone",
-                                 "Obj6Scen4PreErythBloodStage" ~ "Pre-erythrocytic and blood stage activity"),
+                                 "Obj6Scen4PreErythBloodStage" ~ "Pre-liver and blood stage activity"),
          Outcome = case_match(Outcome,
                               "CumCPPY" ~ "Reduction in cumulative uncomplicated cases",
                               "SevCumCPPY" ~ "Reduction in cumulative severe cases"),
@@ -108,9 +108,9 @@ data$AnnualPrev[data$AnnualPrev == "32%"] <- "33%"
 
 # Order factor levels
 data <- data %>%
-  mutate(Experiment = factor(Experiment, levels = c("Pre-erythrocytic activity alone",
+  mutate(Experiment = factor(Experiment, levels = c("Pre-liver stage activity alone",
                                                     "Blood stage activity alone",
-                                                    "Pre-erythrocytic and blood stage activity")),
+                                                    "Pre-liver and blood stage activity")),
          Outcome = factor(Outcome, levels = c("Reduction in cumulative uncomplicated cases", 
                                               "Reduction in cumulative severe cases")),
          Age = factor(Age, levels = c("5 years old", 
@@ -122,4 +122,4 @@ data <- data %>%
 
 # WRITE TO FILE ----
 
-saveRDS(data, "./data_and_figures/supplement_fig43/data_fig43.rds")
+saveRDS(data, "./data_and_figures/supplement_fig44/data_fig44.rds")

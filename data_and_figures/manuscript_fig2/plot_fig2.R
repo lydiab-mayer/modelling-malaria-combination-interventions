@@ -41,7 +41,7 @@ p <- p + facet_wrap(TherapeuticProfile ~ Outcome, scales = "free_y")
 p <- p + theme(panel.border = element_blank(), 
                panel.background = element_blank(),
                strip.background = element_blank(),
-               strip.text = element_text(family = "Times", face = "bold", size = 10),
+               strip.text = element_text(family = "Times", face = "bold", size = 9),
                panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
                panel.grid.major.x = element_blank(),
                panel.grid.minor = element_blank(),
@@ -50,7 +50,8 @@ p <- p + theme(panel.border = element_blank(),
                axis.title = element_text(family = "Times", colour = "grey30", face="bold", size = 8), 
                legend.position = "bottom",
                legend.key = element_rect(fill = NA),
-               title = element_text(family = "Times", face = "bold", size = 10),
+               legend.text = element_text(family = "Times"),
+               title = element_text(family = "Times", face = "bold", size = 9),
                plot.title.position = "plot")
 
 p <- p + scale_colour_manual(values = cols) +
@@ -84,7 +85,7 @@ baseline <- dfOutAggregate %>%
          TherapeuticProfile == "Long duration, high efficacy therapeutic",
          AgeGroup == 5)
 intervention <- dfOutAggregate %>%
-  filter(Intervention == "SMC + pre-erythrocytic therapeutic",
+  filter(Intervention == "SMC + pre-liver stage therapeutic",
          TherapeuticProfile == "Long duration, high efficacy therapeutic",
          AgeGroup == 5)
 (baseline$medianValue - intervention$medianValue) / baseline$medianValue
@@ -95,7 +96,7 @@ baseline <- dfOutAggregate %>%
          TherapeuticProfile == "Long duration, high efficacy therapeutic",
          AgeGroup == 10)
 intervention <- dfOutAggregate %>%
-  filter(Intervention == "SMC + pre-erythrocytic therapeutic",
+  filter(Intervention == "SMC + pre-liver stage therapeutic",
          TherapeuticProfile == "Long duration, high efficacy therapeutic",
          AgeGroup == 10)
 (baseline$medianValue - intervention$medianValue) / baseline$medianValue
@@ -106,7 +107,7 @@ baseline <- dfOutAggregate %>%
          TherapeuticProfile == "Short duration, moderate efficacy therapeutic",
          AgeGroup == 5)
 intervention <- dfOutAggregate %>%
-  filter(Intervention == "SMC + pre-erythrocytic therapeutic",
+  filter(Intervention == "SMC + pre-liver stage therapeutic",
          TherapeuticProfile == "Short duration, moderate efficacy therapeutic",
          AgeGroup == 5)
 (baseline$medianValue - intervention$medianValue) / baseline$medianValue
@@ -117,7 +118,7 @@ baseline <- dfOutAggregate %>%
          TherapeuticProfile == "Short duration, moderate efficacy therapeutic",
          Outcome == "Uncomplicated malaria")
 intervention <- dfOutAggregate %>%
-  filter(Intervention == "SMC + pre-erythrocytic therapeutic",
+  filter(Intervention == "SMC + pre-liver stage therapeutic",
          TherapeuticProfile == "Short duration, moderate efficacy therapeutic",
          Outcome == "Uncomplicated malaria")
 reduction <- (baseline$medianValue - intervention$medianValue) / baseline$medianValue
