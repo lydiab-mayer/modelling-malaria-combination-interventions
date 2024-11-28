@@ -234,10 +234,10 @@ pB <- p + q + r +
 cols <- c("#d9e8f0", "#ffffff", "#fffaf3", "#fff3e1", "#fee4be", "#FED18C")
 
 # Subset data to desired predictors
-dataB <- dataB[dataB$pred == "Cumulative severe cases by age 10", ]
+plotB <- dataB[dataB$pred == "Cumulative severe cases by age 10", ]
 
 # Construct plot
-p <- ggplot(dataB, aes(x = Halflife, y = Efficacy, fill = targetLabel))
+p <- ggplot(plotB, aes(x = Halflife, y = Efficacy, fill = targetLabel))
 
 p <- p + geom_tile()
 
@@ -304,6 +304,15 @@ dataB %>%
          Efficacy == 0.5) %>%
   summarise(maxHalflife = max(Halflife),
             minHalflife = min(Halflife))
+
+# Match criteria to impact at 5 years old
+dataB %>%
+  group_by(Experiment) %>%
+  filter(Halflife >= 237,
+         pred == "Cumulative severe cases by age 5",
+         Efficacy == 0.5) %>%
+  summarise(maxImpact = max(mean),
+            minImpact = min(mean))
 
 dataB %>%
   group_by(Experiment) %>%

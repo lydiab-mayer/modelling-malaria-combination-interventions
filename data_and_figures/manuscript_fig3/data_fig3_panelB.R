@@ -12,7 +12,7 @@ rm(list = ls())
 experiments <- c("Obj6_v2_PreEryth", "Obj6_Scen2_PreEryth", "Obj6_Scen3_PreEryth", "Obj6_Scen4_PreEryth")
 
 # !!! Insert your predicted parameters here. Note that this must match with one column name in post-processing files !!!
-predictors <- c("Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
+predictors <- c("Reduction_CumCPPY_age5", "Reduction_SevCumCPPY_age5", "Reduction_CumCPPY_age10", "Reduction_SevCumCPPY_age10")
 
 # Load required packages
 library(tidyr)
@@ -173,6 +173,8 @@ data <- do.call("rbind", data)
 # Format data
 data <- data %>%
   mutate(pred = case_match(pred,
+                           "Reduction_CumCPPY_age5" ~ "Cumulative clinical cases by age 5",
+                           "Reduction_SevCumCPPY_age5" ~ "Cumulative severe cases by age 5",
                            "Reduction_CumCPPY_age10" ~ "Cumulative clinical cases by age 10",
                            "Reduction_SevCumCPPY_age10" ~ "Cumulative severe cases by age 10"),
          targetLabel = paste0(target, "%"),
