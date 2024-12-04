@@ -1,14 +1,14 @@
 **Combining seasonal malaria chemoprevention with novel therapeutics for malaria prevention: a mathematical modelling study**
 
-Lydia Braunack-Mayer1,2, Josephine Malinga3, Narimane Nekkab1,2, Sherrie L Kelly1,2, Jörg J Möhrle1,2,4, Melissa A Penny1,2,3,5,*
+Lydia Braunack-Mayer1,2, Josephine Malinga3,4, Narimane Nekkab1,2, Sherrie L Kelly1, Jörg J Möhrle1,2,4, Melissa A Penny1,2,3,5,*
 
 1 Swiss Tropical and Public Health Institute, Allschwil, Switzerland
 2 University of Basel, Basel, Switzerland
-3 Telethon Kids Institute, Nedlands, WA, Australia
+3 The Kids Research Institute Australia, Nedlands, WA, Australia
 4 Medicines for Malaria Venture, Geneva, Switzerland
-5 Centre for Child Health Research, The University of Western Australia, Perth, WA, Australia
-
-Correspondence to: Prof Melissa A Penny, melissa.penny@telethonkids.org.au
+5 Centre for Child Health Research, The University of Western Australia, Crawley, WA, Australia
+* Correspondence to:
+Prof Melissa A Penny, melissa.penny@uwa.edu.au
 
 In this study, we combined an individual-based malaria transmission model (https://github.com/SwissTPH/openmalaria/wiki) with explicit models of intervention dynamics for a range of hypothetical malaria prevention therapeutics. We used these models to estimate the impact of combining new therapeutics with seasonal malaria chemoprevention in children under five years old.
 
