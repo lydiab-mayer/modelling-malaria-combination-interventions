@@ -1,12 +1,13 @@
 **Combining seasonal malaria chemoprevention with novel therapeutics for malaria prevention: a mathematical modelling study**
 
-Lydia Braunack-Mayer1,2, Josephine Malinga3,4, Narimane Nekkab1,2, Sherrie L Kelly1, Jörg J Möhrle1,2,4, Melissa A Penny1,2,3,5,*
+Lydia Braunack-Mayer1, 2, Josephine Malinga1,3, Narimane Nekkab4, 5, Sherrie L Kelly4, Jörg J Möhrle4, 5, Melissa A Penny1, 3, *
 
-1 Swiss Tropical and Public Health Institute, Allschwil, Switzerland
-2 University of Basel, Basel, Switzerland
-3 The Kids Research Institute Australia, Nedlands, WA, Australia
-4 Medicines for Malaria Venture, Geneva, Switzerland
-5 Centre for Child Health Research, The University of Western Australia, Crawley, WA, Australia
+1 The Kids Research Institute Australia, Nedlands, WA, Australia
+2 Institute of Social and Preventive Medicine, University of Bern, Bern, Switzerland
+3 Centre for Child Health Research, The University of Western Australia, Crawley, WA, Australia
+4 Swiss Tropical and Public Health Institute, Allschwil, Switzerland
+5 University of Basel, Basel, Switzerland
+
 * Correspondence to:
 Prof Melissa A Penny, melissa.penny@uwa.edu.au
 
