@@ -12,12 +12,10 @@ require(patchwork)
 require(dplyr)
 
 # Load data
-dataA <- readRDS("./data_and_figures/manuscript_fig3/data_fig3_panelA.rds")
-dataB <- readRDS("./data_and_figures/manuscript_fig3/data_fig3_panelB.rds")
+data <- readRDS("./data_and_figures/manuscript_fig3/data_fig3.rds")
 
 # Load tags
-(tagA <- readRDS("./data_and_figures/manuscript_fig3/label_fig3_panelA.rds"))
-(tagB <- readRDS("./data_and_figures/manuscript_fig3/label_fig3_panelB.rds"))
+(tag <- readRDS("./data_and_figures/manuscript_fig3/label_fig3.rds"))
 
 
 # GENERATE PLOT FOR 5 YEAR OUTCOMES ----
@@ -27,16 +25,21 @@ plotTheme <- theme(panel.border = element_blank(),
                    panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
                    panel.grid.major.x = element_blank(),
                    panel.grid.minor = element_blank(),
-                   text = element_text(family = "Times", size = 9),
+                   text = element_text(family = "Times", size = 12),
                    strip.background = element_blank(),
                    strip.text = element_text(face = "bold", size = 12),
                    axis.line = element_blank(),
                    axis.text.x = element_text(colour = "grey45"),
                    axis.text.y = element_text(colour = "grey45"),
-                   axis.title.x = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(t = 10)),
-                   axis.title.y = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(r = 10)),
+                   axis.title.x = element_text(colour = "grey30", face = "bold", size = 12, margin = margin(t = 10)),
+                   axis.title.y = element_text(colour = "grey30", face = "bold", size = 12, margin = margin(r = 10)),
                    plot.title = element_text(hjust = 0.5, face = "bold"),
-                   legend.position = "none")
+                   legend.text = element_text(size = 12),
+                   legend.title = element_blank(),
+                   legend.key.height = unit(0.5, "cm"),
+                   legend.key.width = unit(1.2, "cm"),
+                   legend.key = element_rect(fill="white"), 
+                   legend.position = "bottom")
 
 ## Generate plot for halflife ----
 
@@ -44,7 +47,7 @@ plotTheme <- theme(panel.border = element_blank(),
 col <- "#468AB2"
 
 # Construct plot
-p <- ggplot(dataA[dataA$Parameter == "Halflife" & dataA$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+p <- ggplot(data[data$Parameter == "Halflife" & data$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -58,7 +61,7 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 5 cumulative\ncases vs SMC")
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction in age 5\ncumulative cases vs SMC")
 
 
 ## Generate plot for efficacy ----
@@ -67,7 +70,7 @@ p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 5
 col <- "#EB5160"
 
 # Construct plot
-q <- ggplot(dataA[dataA$Parameter == "Efficacy" & dataA$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+q <- ggplot(data[data$Parameter == "Efficacy" & data$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -93,7 +96,7 @@ q <- q + labs(x = "Initial efficacy", y = "")
 col <- "#22223B"
 
 # Construct plot
-r <- ggplot(dataA[dataA$Parameter == "Kdecay" & dataA$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+r <- ggplot(data[data$Parameter == "Kdecay" & data$Outcome_age == "5 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -114,35 +117,13 @@ r <- r + labs(x = "Decay shape", y = "")
 ## Construct panel A
 
 pA <- p + q + r +
-  plot_annotation(title = "A. Parameter relationships with cumulative case outcomes") &
-  theme(plot.title = element_text(family = "Times", size = 10, face = "bold", vjust = 8))
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "A. Pre-liver stage parameter relationships with cumulative case outcomes by five years old") &
+  theme(legend.position = "none", plot.title = element_text(family = "Times", size = 12, face = "bold"))
 
 
 
 # GENERATE PLOT FOR 10 YEAR OUTCOMES ----
-
-plotTheme <- theme(panel.border = element_blank(), 
-                   panel.background = element_blank(),
-                   panel.grid.major.y = element_line(colour = "grey80", linetype = "dotted"),
-                   panel.grid.major.x = element_blank(),
-                   panel.grid.minor = element_blank(),
-                   text = element_text(family = "Times", size = 9),
-                   strip.background = element_blank(),
-                   strip.text = element_text(face = "bold", size = 9),
-                   axis.line = element_blank(),
-                   axis.text.x = element_text(colour = "grey45"),
-                   axis.text.y = element_text(colour = "grey45"),
-                   axis.title.x = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(t = 10)),
-                   axis.title.y = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(r = 10)),
-                   plot.title = element_text(hjust = 0.5, face = "bold"),
-                   legend.text = element_text(size = 9),
-                   legend.title = element_blank(),
-                   legend.key.height = unit(0.5, "cm"),
-                   legend.key.width = unit(1.2, "cm"),
-                   legend.key = element_rect(fill="white"),
-                   legend.position = "bottom",
-                   legend.margin = margin(-3, 0, 0, 0))
-
 
 ## Generate plot for halflife ----
 
@@ -150,7 +131,7 @@ plotTheme <- theme(panel.border = element_blank(),
 col <- "#468AB2"
 
 # Construct plot
-p <- ggplot(dataA[dataA$Parameter == "Halflife" & dataA$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+p <- ggplot(data[data$Parameter == "Halflife" & data$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -164,7 +145,7 @@ p <- p  + scale_x_continuous(expand = expansion(mult = .05, add = 0)) +
   scale_fill_manual(values = rep(col, 2), guide = "none") +
   scale_colour_manual(values = rep(col, 2), guide = "none")
 
-p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 10 cumulative\ncases vs SMC") +
+p <- p + labs(x = "Protection half-life (days)", y = "Median reduction in age 10\ncumulative cases vs SMC") +
   guides(fill = guide_legend(override.aes = list(fill = NA)))
 
 
@@ -174,7 +155,7 @@ p <- p + labs(x = "Protection half-life (days)", y = "Median reduction\nin age 1
 col <- "#EB5160"
 
 # Construct plot
-q <- ggplot(dataA[dataA$Parameter == "Efficacy" & dataA$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+q <- ggplot(data[data$Parameter == "Efficacy" & data$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -201,7 +182,7 @@ q <- q + labs(x = "Initial efficacy", y = "") +
 col <- "#22223B"
 
 # Construct plot
-r <- ggplot(dataA[dataA$Parameter == "Kdecay" & dataA$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
+r <- ggplot(data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ], aes(x = segLower, y = median, ymin = quantile0.25, ymax = quantile0.75, linetype = Outcome, colour = Outcome, fill = Outcome)) +
   geom_line(linewidth = 1) +
   geom_ribbon(alpha = 0.15, linewidth = 0.1)
 
@@ -223,101 +204,25 @@ r <- r + labs(x = "Decay shape", y = "") +
 ## Construct panel B ----
 
 pB <- p + q + r +
+  plot_annotation(title = "B. Pre-liver stage parameter relationships with cumulative case outcomes by ten years old") &
   plot_layout(guides = "collect") &
-  theme(legend.position  = "bottom")
+  theme(legend.position  = "bottom", plot.title = element_text(family = "Times", size = 12, face = "bold", vjust = 4))
 
-
-
-# GENERATE PANEL C ----
-
-# Define colours
-cols <- c("#d9e8f0", "#ffffff", "#fffaf3", "#fff3e1", "#fee4be", "#FED18C")
-
-# Subset data to desired predictors
-plotB <- dataB[dataB$pred == "Cumulative severe cases by age 10", ]
-
-# Construct plot
-p <- ggplot(plotB, aes(x = Halflife, y = Efficacy, fill = targetLabel))
-
-p <- p + geom_tile()
-
-p <- p + facet_wrap(. ~ Experiment, ncol = 2)
-
-p <- p + theme(panel.border = element_blank(),
-               panel.background = element_blank(),
-               panel.grid = element_blank(),
-               text = element_text(family = "Times", size = 9),
-               strip.background = element_blank(),
-               strip.text = element_text(size = 9, face = "bold"),
-               axis.line = element_blank(),
-               axis.text.x = element_text(colour = "grey45"),
-               axis.text.y = element_text(colour = "grey45"),
-               axis.title.x = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(t = 10)),
-               axis.title.y = element_text(colour = "grey30", face = "bold", size = 9, margin = margin(r = 10)),
-               legend.text = element_text(size = 9),
-               legend.title = element_text(face = "bold", size = 9),
-               legend.key.width = unit(0.8, "cm"),
-               legend.margin = margin(-3, 0, 0, 0))
-
-p <- p + scale_fill_manual(values = cols) +
-  scale_y_continuous(breaks = seq(0.2, 1.0, 0.2),
-                     labels = paste0(seq(20, 100, 20), "%"))
-
-p <- p + labs(x = "Protection half-life (days)",
-              y = "Initial efficacy")
-
-p <- p + guides(fill = guide_legend(title = "Reduction in cumulative severe\ncases by age 10 vs SMC", nrow = 1))
-
-## Construct panel C ----
-
-pC <- p +
-  plot_annotation(title = "B. Parameter relationships with SMC deployment") &
-  theme(legend.position  = "bottom",
-        plot.title = element_text(family = "Times", size = 10, face = "bold", vjust = 0))
 
 # CONSTRUCT FINAL FIGURE ----
 
-wrap_elements(pA) / wrap_elements(pB) / wrap_elements(pC) + plot_layout(heights = c(1, 1.2, 2.5))
+wrap_elements(pA) / wrap_elements(pB) / plot_layout(heights = c(0.9, 1))
 
 ggsave(filename = "./data_and_figures/manuscript_fig3/fig3.jpeg",
        plot = last_plot(),
-       width = 8.1,
-       height = 8.5,
+       width = 8,
+       height = 6.5,
        dpi = 400)
 
 # GENERATE POINT ESTIMATES FOR MANUSCRIPT TEXT ----
 
-dataA[dataA$Parameter == "Kdecay" & dataA$Outcome_age == "10 years", ] %>%
+data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ] %>%
   filter(segLower == 0.6)
 
-dataA[dataA$Parameter == "Kdecay" & dataA$Outcome_age == "10 years", ] %>%
+data[data$Parameter == "Kdecay" & data$Outcome_age == "10 years", ] %>%
   filter(segLower == 4)
-
-# Define target
-targetOutcome <- 5
-
-# Identify criteria
-dataB %>%
-  group_by(Experiment) %>%
-  filter(target >= targetOutcome,
-         pred == "Cumulative severe cases by age 10",
-         Efficacy == 0.5) %>%
-  summarise(maxHalflife = max(Halflife),
-            minHalflife = min(Halflife))
-
-# Match criteria to impact at 5 years old
-dataB %>%
-  group_by(Experiment) %>%
-  filter(Halflife >= 237,
-         pred == "Cumulative severe cases by age 5",
-         Efficacy == 0.5) %>%
-  summarise(maxImpact = max(mean),
-            minImpact = min(mean))
-
-dataB %>%
-  group_by(Experiment) %>%
-  filter(target >= targetOutcome,
-         pred == "Cumulative severe cases by age 10",
-         Efficacy == 0.7) %>%
-  summarise(maxHalflife = max(Halflife),
-            minHalflife = min(Halflife))

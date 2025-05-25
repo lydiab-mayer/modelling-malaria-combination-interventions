@@ -307,7 +307,7 @@ p + q + r +
   plot_annotation(tag_levels = "A")  & 
   theme(plot.tag = element_text(family = "Times", face = "bold"))
 
-ggsave(filename = paste0("./data_and_figures/manuscript_fig1/fig1.jpg"),
+ggsave(filename = paste0("./data_and_figures/manuscript_fig1/fig1.pdf"),
        plot = last_plot(),
        width = 9,
        height = 5.5,

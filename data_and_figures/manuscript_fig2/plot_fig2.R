@@ -69,7 +69,7 @@ p <- p + labs(x = "Age (years)",
 
 p
 
-ggsave(filename = paste0("./data_and_figures/manuscript_fig2/fig2.jpg"),
+ggsave(filename = paste0("./data_and_figures/manuscript_fig2/fig2.pdf"),
        plot = last_plot(),
        width = 8,
        height = 5.5,
